@@ -1,8 +1,0 @@
-//
-// Created by thoma on 28/10/2025.
-//
-
-#ifndef INC_2CPP_PROJECT_EXMPL_HPP
-#define INC_2CPP_PROJECT_EXMPL_HPP
-
-#endif //INC_2CPP_PROJECT_EXMPL_HPP
