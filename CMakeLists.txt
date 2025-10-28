@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(project_lib
         src/Utils_example.cpp
 )
-
 target_include_directories(project_lib PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -24,6 +23,7 @@ include(FetchContent)
 FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
