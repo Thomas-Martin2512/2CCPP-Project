@@ -1,10 +1,9 @@
-//
-// Created by thoma on 28/10/2025.
-//
+// Utils_example.hpp
 
 #ifndef UTILS_EXAMPLE_HPP_INCLUDED
 #define UTILS_EXAMPLE_HPP_INCLUDED
 
+// Native library import
 #pragma once
 #include <iostream>
 #include <string>

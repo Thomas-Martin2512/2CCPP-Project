@@ -1,21 +1,19 @@
-cmake_minimum_required(VERSION 4.0)
-project(2CPP_Project LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.20)
+project(2CCPP_Project LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(project_lib
-        src/utils.cpp
+        src/Utils_example.cpp
 )
+
 target_include_directories(project_lib PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
-        include/Utils_example.hpp
-        tests/tests.cpp
-        src/Utils_example.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
@@ -28,11 +26,10 @@ FetchContent_Declare(
         URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
 FetchContent_MakeAvailable(googletest)
 
 add_executable(tests
-        tests/test_utils.cpp
+        tests/tests.cpp
 )
 target_link_libraries(tests PRIVATE
         project_lib
