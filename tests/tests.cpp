@@ -1,11 +1,4 @@
-//
-// Created by thoma on 28/10/2025.
-//
-
-// Native library import
-#include <iostream>
-
-// Folders / Files import
+#include <gtest/gtest.h>
 #include "Utils_example.hpp"
 
 TEST(Utils, GreetReturnsExpectedString) {
