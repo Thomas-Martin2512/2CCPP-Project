@@ -1,0 +1,10 @@
+# Dossiers de build générés par CLion/CMake
+cmake-build-*
+build/
+
+# Fichiers de configuration de l'IDE CLion
+.idea/
+
+# Fichiers systèmes
+.DS_Store
+Thumbs.db
