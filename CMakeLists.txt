@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(project_lib
         src/Utils_example.cpp
+        include/Tile/Tile.hpp
 )
 target_include_directories(project_lib PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -13,6 +14,7 @@ target_include_directories(project_lib PUBLIC
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
+        include/Tile/Tile.hpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
