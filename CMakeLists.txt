@@ -13,6 +13,8 @@ target_include_directories(project_lib PUBLIC
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
+        include/Player.cpp
+        include/Player.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
