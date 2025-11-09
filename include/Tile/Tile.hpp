@@ -3,13 +3,40 @@
 
 #include <string>
 #include <vector>
+#include <utility>
+
+
 
 class Tile {
     protected:
-        std::string type;
-        std::string color;
-        std::vector<int> x, y;
+        std::string id_;
+        std::string color_;
+        std::vector<std::pair<int, int>> cells_;
 
+    public:
+        Tile() = default;
+        Tile(std::string id, std::vector<std::pair<int, int>> cells, std::string color = "green");
+        virtual ~Tile() = default;
+
+        virtual const std::string& getId() const;
+        virtual const std::string& getColor() const;
+        virtual const std::vector<std::pair<int, int>>& getCells() const;
+        virtual void setId(const std::string& id);
+        virtual void setColor(const std::string& color);
+
+        virtual void setId(std::string& newId);
+        virtual void setColor(std::string& newColor);
+
+        virtual void rotate();
+        virtual void flip();
+        virtual void normalizeToOrigin();
+        virtual std::pair<int, int> boxLimit() const;
+        virtual std::vector<std::pair<int, int>>
+        footprint(int originX, int originY, int rotations = 0, bool flipped = false) const;
+        virtual bool shapeEquals(const Tile& other) const;
+
+    private:
+        static void normalize(std::vector<std::pair<int, int>>& pts);
 };
 
 #endif // TILE_HPP_INCLUDED
