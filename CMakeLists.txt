@@ -4,6 +4,12 @@ project(2CCPP_Project LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+configure_file(
+        ${CMAKE_SOURCE_DIR}/src/Tile/Shapes.json
+        ${CMAKE_CURRENT_BINARY_DIR}/Shapes.json
+        COPYONLY
+)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -17,6 +23,8 @@ add_library(project_lib
         src/Utils_example.cpp
         src/Tile/InitTiles.cpp
         src/Tile/Tile.cpp
+        include/Render/Renderer.hpp
+        src/Render/Renderer.cpp
 )
 
 target_include_directories(project_lib PUBLIC
@@ -26,6 +34,8 @@ target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
+        include/Render/Renderer.hpp
+        src/Render/Renderer.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 

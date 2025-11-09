@@ -21,8 +21,6 @@ class Tile {
         virtual const std::string& getId() const;
         virtual const std::string& getColor() const;
         virtual const std::vector<std::pair<int, int>>& getCells() const;
-        virtual void setId(const std::string& id);
-        virtual void setColor(const std::string& color);
 
         virtual void setId(std::string& newId);
         virtual void setColor(std::string& newColor);
@@ -30,9 +28,11 @@ class Tile {
         virtual void rotate();
         virtual void flip();
         virtual void normalizeToOrigin();
+
         virtual std::pair<int, int> boxLimit() const;
         virtual std::vector<std::pair<int, int>>
         footprint(int originX, int originY, int rotations = 0, bool flipped = false) const;
+
         virtual bool shapeEquals(const Tile& other) const;
 
     private:

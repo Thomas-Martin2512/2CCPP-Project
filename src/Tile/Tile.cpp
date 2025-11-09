@@ -20,12 +20,14 @@ const std::vector<std::pair<int,int>>& Tile::getCells() const {
     return cells_;
 }
 
-void Tile::setId(const std::string& id) {
-    id_ = id;
+void Tile::setId(std::string &newId) {
+    id_ = newId;
 }
-void Tile::setColor(const std::string& color) {
-    color_ = color;
+void Tile::setColor(std::string &newColor) {
+    color_ = newColor;
 }
+
+
 
 void Tile::normalize(std::vector<std::pair<int, int>>& pts) {
     if (pts.empty()) return;
@@ -57,43 +59,43 @@ std::pair<int, int> Tile::boxLimit() const {
 }
 
 void Tile::rotate() {
-    std::vector<std::pair<int, int>> rota;
-    rota.reserve(cells_.size());
+    std::vector<std::pair<int,int>> out;
+    out.reserve(cells_.size());
     for (auto [x, y] : cells_) {
-        rota.emplace_back(y, -x - 1);
+        out.emplace_back(y, -x);
     }
-    normalize(rota);
-    cells_.swap(rota);
+    normalize(out);
+    cells_.swap(out);
 }
 
 void Tile::flip() {
-    std::vector<std::pair<int, int>> flippin;
-    flippin.reserve(cells_.size());
+    std::vector<std::pair<int,int>> out;
+    out.reserve(cells_.size());
     for (auto [x, y] : cells_) {
-        flippin.emplace_back(-x - 1, y);
+        out.emplace_back(-x, y);
     }
-    normalize(flippin);
-    cells_.swap(flippin);
+    normalize(out);
+    cells_.swap(out);
 }
 
 std::vector<std::pair<int, int> > Tile::footprint(int originX, int originY, int rotations, bool flipped) const {
-    std::vector<std::pair<int, int> > pts = cells_;
+    std::vector<std::pair<int,int>> pts = cells_;
     if (flipped) {
         for (auto& p : pts) {
-            p.first = -p.first - 1;
-            normalize(pts);
+            p.first = -p.first;
         }
+        normalize(pts);
     }
     rotations = ((rotations % 4) + 4) % 4;
     for (int k = 0; k < rotations; ++k) {
         for (auto& p : pts) {
             int x = p.first, y = p.second;
-            p = {y, -x - 1};
+            p = { y, -x };
         }
         normalize(pts);
     }
     for (auto& p : pts) {
-        p.first += originX;
+        p.first  += originX;
         p.second += originY;
     }
     return pts;
@@ -103,26 +105,3 @@ bool Tile::shapeEquals(const Tile& other) const {
     if (cells_.size() != other.cells_.size()) return false;
     return std::equal(cells_.begin(), cells_.end(), other.cells_.begin());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
