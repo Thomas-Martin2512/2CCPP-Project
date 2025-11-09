@@ -17,6 +17,8 @@ add_executable(${PROJECT_NAME}
         include/Player.h
         include/Board.cpp
         include/Board.h
+        include/Display_Board.cpp
+        include/Display_Board.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
