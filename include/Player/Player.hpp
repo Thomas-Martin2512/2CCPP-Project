@@ -5,6 +5,8 @@
 
 class Player {
     private:
+        static int nextID;
+        int id;
         std :: string name;
         std :: string color;
 
@@ -16,6 +18,7 @@ class Player {
         void inputPlayerInfo(int playerNumber);
         void displayInfo() const;
 
+        int getID() const;
         std::string getName() const;
         std::string getColor() const;
         void setName(const std::string& newName);
