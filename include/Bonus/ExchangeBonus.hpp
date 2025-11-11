@@ -7,7 +7,7 @@
 class ExchangeBonus : public Bonus {
     public:
         std::string getSymbol() const override { return "E"; }
-        std::string getName() const override { return "Echange de tuiles"; }
+        std::string getName() const override { return "Exchange a tile"; }
 };
 
 
