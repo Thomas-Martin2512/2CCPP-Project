@@ -43,10 +43,6 @@ target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
-        include/Bonus/Bonus.hpp
-        include/Bonus/ExchangeBonus.hpp
-        include/Bonus/StoneBonus.hpp
-        include/Bonus/SteelBonus.hpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
