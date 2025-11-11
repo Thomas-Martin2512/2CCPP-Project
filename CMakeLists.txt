@@ -33,6 +33,7 @@ add_library(project_lib
         src/Player/Player.cpp
         src/Board/Board.cpp
         src/Display_Board/Display_Board.cpp
+        src/Tile/TileQueue.cpp
 )
 
 target_include_directories(project_lib PUBLIC
