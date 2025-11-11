@@ -33,6 +33,7 @@ add_library(project_lib
         src/Player/Player.cpp
         src/Board/Board.cpp
         src/Display_Board/Display_Board.cpp
+        src/Tile/TileQueue.cpp
 )
 
 target_include_directories(project_lib PUBLIC
@@ -43,11 +44,6 @@ target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
-        include/Bonus/Bonus.hpp
-        src/Bonus/Bonus_Ticket_Change.cpp
-        include/Bonus/ExchangeBonus.hpp
-        include/Bonus/StoneBonus.hpp
-        include/Bonus/SteelBonus.hpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
