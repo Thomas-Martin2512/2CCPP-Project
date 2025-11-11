@@ -23,7 +23,7 @@ void Board::initGrid(int numberOfPlayers) {
         rows = 30;
         cols = 30;
     } else {
-        std::cerr << "Nombre de joueurs invalide !" << std::endl;
+        std::cerr << "Invalid player's number !" << std::endl;
         rows = cols = 0;
     }
 
