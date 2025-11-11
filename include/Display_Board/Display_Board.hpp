@@ -1,15 +1,18 @@
 #ifndef DISPLAY_BOARD_HPP_INCLUDED
 #define DISPLAY_BOARD_HPP_INCLUDED
 #include "../Board/Board.hpp"
+#include <iostream>
 
 class Display_Board {
     public :
-        Display_Board(const Board& board);
+        explicit Display_Board(const Board& board);
 
         void display() const;
 
     private:
         const Board& board;
+        void printTopBoarder(int cols) const;
+        void printBottomBoarder(int cols) const;
 };
 
 
