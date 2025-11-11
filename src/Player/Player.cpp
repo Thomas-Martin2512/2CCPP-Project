@@ -1,9 +1,13 @@
 #include "../../include/Player/Player.hpp"
 #include <iostream>
 
-Player::Player() = default;
+
+
+int Player::nextID = 1;
+Player::Player() : id(nextID++) {}
+
 Player::Player(const std::string& playerName, const std::string& playerColor)
-    : name(playerName), color(playerColor) {}
+    : id(nextID++), name(playerName), color(playerColor) {}
 
 
 
@@ -17,7 +21,13 @@ void Player::inputPlayerInfo(int playerNumber) {
 }
 
 void Player::displayInfo() const {
-    std::cout << "Name: " << name << ", couleur : "<< color << std::endl;
+    std::cout << "ID: " << id
+              << "Nom: " << name
+              << "Couleur: " << color << std::endl;
+}
+
+int Player::getID() const {
+    return id;
 }
 
 std :: string Player::getName() const {
