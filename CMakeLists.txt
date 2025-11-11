@@ -11,42 +11,12 @@ configure_file(
 )
 
 include(FetchContent)
-
 FetchContent_Declare(
         nlohmann_json
         URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(nlohmann_json)
-
-add_library(project_lib
-        src/Utils_example.cpp
-        src/Tile/InitTiles.cpp
-        src/Tile/Tile.cpp
-        include/Render/Renderer.hpp
-        src/Render/Renderer.cpp
-)
-
-target_include_directories(project_lib PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
-
-add_executable(${PROJECT_NAME}
-        src/main.cpp
-        include/Render/Renderer.hpp
-        src/Render/Renderer.cpp
-        include/Player.cpp
-        include/Player.h
-        include/Board.cpp
-        include/Board.h
-        include/Display_Board.cpp
-        include/Display_Board.h
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
-
-include(CTest)
-enable_testing()
 
 FetchContent_Declare(
         googletest
@@ -55,6 +25,29 @@ FetchContent_Declare(
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+
+add_library(project_lib
+        src/Tile/InitTiles.cpp
+        src/Tile/Tile.cpp
+        src/Render/Renderer.cpp
+        src/Player/Player.cpp
+        src/Board/Board.cpp
+        src/Display_Board/Display_Board.cpp
+)
+
+target_include_directories(project_lib PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
+
+add_executable(${PROJECT_NAME}
+        src/main.cpp
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
+
+include(CTest)
+enable_testing()
 
 add_executable(tests tests/tests.cpp)
 target_link_libraries(tests PRIVATE project_lib GTest::gtest_main)

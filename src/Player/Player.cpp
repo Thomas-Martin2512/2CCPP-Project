@@ -1,4 +1,4 @@
-#include "Player.h"
+#include "../../include/Player/Player.hpp"
 #include <iostream>
 
 Player::Player() = default;
