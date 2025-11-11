@@ -15,7 +15,7 @@ namespace render {
     std::string drawTile(const Tile& t, char fill) {
         const auto& cells = t.getCells();
         auto [w,h] = box(cells);
-        if (w==0 || h==0) return "(vide)\n";
+        if (w==0 || h==0) return "(empty)\n";
 
         std::vector<std::string> grid(h, std::string(w, '.'));
         for (auto [x,y] : cells) {

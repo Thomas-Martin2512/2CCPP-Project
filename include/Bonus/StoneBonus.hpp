@@ -5,8 +5,8 @@
 
 class StoneBonus : public Bonus {
     public:
-        std::string getSymbol() const override { return "P"; }
-        std::string getName() const override { return "Pierre"; }
+        std::string getSymbol() const override { return "R"; }
+        std::string getName() const override { return "Rock"; }
 };
 
 

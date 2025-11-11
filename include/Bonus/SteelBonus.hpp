@@ -5,8 +5,8 @@
 
 class StealBonus : public Bonus {
     public:
-        std::string getSymbol() const override { return "V"; }
-        std::string getName() const override { return "Vol"; }
+        std::string getSymbol() const override { return "S"; }
+        std::string getName() const override { return "Stealth"; }
 };
 
 

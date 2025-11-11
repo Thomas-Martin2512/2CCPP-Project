@@ -23,12 +23,12 @@ void Display_Board::display() const {
     const auto& bonuses = board.getBonus();
 
     if (rows == 0 || cols == 0) {
-        std::cerr << "Erreur : la grille est vide ou non initialisée." << std::endl;
+        std::cerr << "Error : empty grid or non-initialized." << std::endl;
         return;
     }
 
     std::cout << std::endl;
-    std::cout << "   === Plateau de jeu ===" << std::endl << std::endl;
+    std::cout << "   === Game board ===" << std::endl << std::endl;
 
     printTopBoarder(cols);
 

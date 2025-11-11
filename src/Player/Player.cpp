@@ -12,18 +12,18 @@ Player::Player(const std::string& playerName, const std::string& playerColor)
 
 
 void Player::inputPlayerInfo(int playerNumber) {
-    std::cout << "=== Joueur " << playerNumber << " ===\n";
-    std::cout << "Entrez le nom du joueur : ";
+    std::cout << "=== Player " << playerNumber << " ===\n";
+    std::cout << "Enter a player name : ";
     std::getline(std::cin,name);
-    std::cout << "Entrez une couleur valide : ";
+    std::cout << "Enter a valid color : ";
     std::getline(std::cin,color);
-    std::cout << "Joueur " << name << "enregistré !" << std::endl;
+    std::cout << "Player " << name << " saved !" << std::endl;
 }
 
 void Player::displayInfo() const {
     std::cout << "ID: " << id
-              << "Nom: " << name
-              << "Couleur: " << color << std::endl;
+              << "Name: " << name
+              << "Color: " << color << std::endl;
 }
 
 int Player::getID() const {
