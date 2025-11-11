@@ -1,0 +1,97 @@
+#include "../../include/Game/Game.hpp"
+#include <iostream>
+#include <algorithm>
+#include <ctime>
+#include <cstdlib>
+
+Game::Game() : board(), display(nullptr), currentRound(1) {}
+
+void Game::start() {
+    std::cout << "=== DÉBUT DE LA PARTIE ===" << std::endl;
+
+    setupPlayers();
+    setupBoard();
+    placeStartingTiles();
+
+    std::cout << "\nTous les joueurs ont placé leur tuile de départ !" << std::endl;
+    displayBoard();
+
+    std::cout << "\n--- Début des 9 manches ---" << std::endl;
+}
+
+void Game::setupPlayers() {
+    int numberOfPlayers;
+    do {
+        std::cout << "Entrez le nombre de joueurs (2 à 9) : ";
+        std::cin >> numberOfPlayers;
+        std::cin.ignore();
+    } while (numberOfPlayers < 2 || numberOfPlayers > 9);
+
+    for (int i = 0; i < numberOfPlayers; ++i) {
+        Player p;
+        p.inputPlayerInfo(i + 1);
+        players.push_back(p);
+    }
+
+    shufflePlayerOrder();
+}
+
+void Game::setupBoard() {
+    int numPlayers = static_cast<int>(players.size());
+    board = Board(numPlayers);
+    board.placeBonus(numPlayers);
+    display = new Display_Board(board);
+}
+
+void Game::shufflePlayerOrder() {
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    std::random_shuffle(players.begin(), players.end());
+    std::cout << "\nOrdre de jeu aléatoire :" << std::endl;
+    for (size_t i = 0; i < players.size(); ++i) {
+        std::cout << i + 1 << ". " << players[i].getName() << std::endl;
+    }
+}
+
+void Game::placeStartingTiles() {
+    std::cout << "\n=== Placement des tuiles de départ ===" << std::endl;
+    for (auto& player : players) {
+        int x, y;
+        bool valid = false;
+
+        while (!valid) {
+            std::cout << player.getName() << ", entrez la position de votre tuile de départ (x y) : ";
+            std::cin >> x >> y;
+
+            if (x >= 0 && x < board.getRows() && y >= 0 && y < board.getCols()) {
+                if (board.getGrid()[x][y] == '.') {
+                    valid = true;
+                    auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
+                    grid[x][y] = '#';
+                    std::cout << "Tuile placée en (" << x << ", " << y << ")" << std::endl;
+                } else {
+                    std::cout << "Cette case est déjà occupée, choisis une autre position." << std::endl;
+                }
+            } else {
+                std::cout << "Coordonnées invalides." << std::endl;
+            }
+        }
+
+        displayBoard();
+    }
+}
+
+void Game::displayBoard() const {
+    if (display)
+        display->display();
+}
+
+std::string Game::getAnsiColor(const std::string& colorName) const {
+    if (colorName == "rouge" || colorName == "red") return "\033[31m";
+    if (colorName == "bleu" || colorName == "blue") return "\033[34m";
+    if (colorName == "vert" || colorName == "green") return "\033[32m";
+    if (colorName == "jaune" || colorName == "yellow") return "\033[33m";
+    if (colorName == "cyan") return "\033[36m";
+    if (colorName == "magenta") return "\033[35m";
+    if (colorName == "blanc" || colorName == "white") return "\033[37m";
+    return "\033[0m";
+}

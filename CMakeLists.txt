@@ -47,6 +47,10 @@ add_executable(${PROJECT_NAME}
         include/Bonus/ExchangeBonus.hpp
         include/Bonus/StoneBonus.hpp
         include/Bonus/SteelBonus.hpp
+        include/Game/Game.hpp
+        src/Game/Game.cpp
+        include/Game/Game.hpp
+        src/Game/Game.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 
