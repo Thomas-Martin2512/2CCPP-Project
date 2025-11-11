@@ -1,4 +1,4 @@
-#include "Display_Board.h"
+#include "../../include/Display_Board/Display_Board.hpp"
 #include <iostream>
 
 Display_Board::Display_Board(const Board &board) : board(board) {}

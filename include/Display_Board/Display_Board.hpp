@@ -1,6 +1,6 @@
-#ifndef INC_2CCPP_PROJECT_DISPLAY_BOARD_H
-#define INC_2CCPP_PROJECT_DISPLAY_BOARD_H
-#include "Board.h"
+#ifndef DISPLAY_BOARD_HPP_INCLUDED
+#define DISPLAY_BOARD_HPP_INCLUDED
+#include "../Board/Board.hpp"
 
 class Display_Board {
     public :
@@ -13,4 +13,4 @@ class Display_Board {
 };
 
 
-#endif
+#endif // DISPLAY_BOARD_HPP_INCLUDED

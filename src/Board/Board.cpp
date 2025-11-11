@@ -1,4 +1,4 @@
-#include "Board.h"
+#include "../../include/Board/Board.hpp"
 #include "string"
 #include "iostream"
 

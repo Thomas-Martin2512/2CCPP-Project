@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_PLAYER_H
-#define INC_2CCPP_PROJECT_PLAYER_H
+#ifndef PLAYER_HPP_INCLUDED
+#define PLAYER_HPP_INCLUDED
 #include "string"
 
 
@@ -22,4 +22,4 @@ class Player {
         void setColor(const std::string& newColor);
 };
 
-#endif
+#endif // PLAYER_HPP_INCLUDED

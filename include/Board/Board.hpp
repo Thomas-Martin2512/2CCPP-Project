@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_BOARD_H
-#define INC_2CCPP_PROJECT_BOARD_H
+#ifndef BOARD_HPP_INCLUDED
+#define BOARD_HPP_INCLUDED
 #include <vector>
 
 class Board {
@@ -23,4 +23,4 @@ class Board {
 };
 
 
-#endif
+#endif // BOARD_HPP_INCLUDED
