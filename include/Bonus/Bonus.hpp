@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_BONUS_H
-#define INC_2CCPP_PROJECT_BONUS_H
+#ifndef BONUS_HPP_INCLUDED
+#define BONUS_HPP_INCLUDED
 
 #include <string>
 
@@ -10,4 +10,4 @@ class Bonus {
         virtual std::string getName() const = 0;
 };
 
-#endif
+#endif // BONUS_HPP_INCLUDED
