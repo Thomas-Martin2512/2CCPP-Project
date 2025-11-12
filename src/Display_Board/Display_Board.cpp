@@ -2,6 +2,19 @@
 #include "../../include/Game/Game.hpp"
 #include <iostream>
 #include <iomanip>
+#include <string>
+#include <algorithm>
+#include <cctype>
+
+static std::string colToLetters(int index) {
+    std::string result;
+    while (index >= 0) {
+        char letter = 'A' + (index % 26);
+        result = letter + result;
+        index = (index / 26) - 1;
+    }
+    return result;
+}
 
 Display_Board::Display_Board(const Board &board) : board(board) {}
 
@@ -31,40 +44,42 @@ void Display_Board::display(const Game& game) const {
         return;
     }
 
-    std::cout << "+";
+    std::cout << "   ";
+    for (int j = 0; j < cols; ++j) {
+        std::string lab = colToLetters(j);
+        std::cout << std::setw(2) << lab;
+    }
+    std::cout << "\n";
+
+    std::cout << "   +";
     for (int j = 0; j < cols; ++j) std::cout << "--";
-    std::cout << "+" << std::endl;
+    std::cout << "+\n";
 
     for (int i = 0; i < rows; ++i) {
-        std::cout << "|";
-
+        std::cout << std::setw(2) << i << " |";
         for (int j = 0; j < cols; ++j) {
             auto it = bonuses.find({i, j});
             if (it != bonuses.end()) {
                 std::cout << it->second->getSymbol() << " ";
-            }
-            else {
+            } else {
                 char cell = grid[i][j];
-
                 if (cell == '#') {
                     int owner = ownerGrid[i][j];
                     if (owner > 0 && owner <= static_cast<int>(players.size())) {
-                        std::string ansi = game.getAnsiColor(players[owner-1].getColor());
+                        std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
                         std::cout << ansi << "#" << "\033[0m ";
                     } else {
                         std::cout << "# ";
                     }
-                }
-                else {
+                } else {
                     std::cout << ". ";
                 }
             }
         }
-
-        std::cout << "|" << std::endl;
+        std::cout << "|\n";
     }
 
-    std::cout << "+";
+    std::cout << "   +";
     for (int j = 0; j < cols; ++j) std::cout << "--";
-    std::cout << "+" << std::endl;
+    std::cout << "+\n";
 }

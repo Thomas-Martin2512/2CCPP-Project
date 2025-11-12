@@ -28,6 +28,7 @@ public:
     ~Game();
 
     void start();
+    void placeStartingTiles();
 
     const std::vector<Player>& getPlayers() const { return players; }
     std::string getAnsiColor(const std::string& colorName) const;

@@ -1,8 +1,46 @@
+#ifdef _WIN32
+#include <windows.h>
+static void enableAnsiOnWindows() {
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h == INVALID_HANDLE_VALUE) return;
+    DWORD mode = 0;
+    if (!GetConsoleMode(h, &mode)) return;
+    SetConsoleMode(h, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+}
+#else
+static void enableAnsiOnWindows() {}
+#endif
+
 #include "../../include/Game/Game.hpp"
 #include "../../include/Render/Renderer.hpp"
 #include <iostream>
 #include <algorithm>
 #include <limits>
+
+static std::string colToLetters(int index) {
+    std::string result;
+    while (index >= 0) {
+        char letter = 'A' + (index % 26);
+        result = letter + result;
+        index = (index / 26) - 1;
+    }
+    return result;
+}
+
+static int lettersToCol(const std::string& in) {
+    int val = 0;
+    bool any = false;
+    for (char ch : in) {
+        if (std::isspace((unsigned char)ch)) continue;
+        ch = char(std::toupper((unsigned char)ch));
+        if (ch < 'A' || ch > 'Z') return -1;
+        val = val * 26 + (ch - 'A' + 1);
+        any = true;
+    }
+    if (!any) return -1;
+    return val - 1;
+}
+
 
 Game::Game()
     : board(),
@@ -17,11 +55,13 @@ Game::~Game() {
 }
 
 void Game::start() {
+    enableAnsiOnWindows();
     std::cout << " THE GAME IS STARTING \n";
 
     setupPlayers();
     setupBoard();
     setupTiles();
+    placeStartingTiles();
 
     displayBoard();
     runRounds(9);
@@ -32,7 +72,7 @@ void Game::start() {
 /* ---------------------- SETUP ---------------------- */
 
 void Game::setupPlayers() {
-    int numberOfPlayers = readIntInRange("How many players will play (1 to 9) ? : ", 2, 9);
+    int numberOfPlayers = readIntInRange("How many players will play (2 to 9) ? : ", 2, 9);
 
     std::vector<std::string> availableColors = {
         "red", "blue", "green", "yellow",
@@ -101,11 +141,50 @@ void Game::setupTiles() {
     queue.initFrom(tileSet, /*shuffle=*/true);
     std::cout << "Loaded Tiles : " << tileSet.all().size() << "\n";
 
-    // Affiche les 5 premières IDs pour debug/repère
     auto ids = queue.nextTileIds(5);
-    std::cout << "Next 5 tiles-id: ";
-    for (auto& id : ids) std::cout << id << " ";
     std::cout << "\n";
+}
+
+void Game::placeStartingTiles() {
+    std::cout << "\n=== Placing the starting tiles ===\n";
+
+    for (auto& player : players) {
+        bool valid = false;
+        char colChar;
+        int row;
+
+        while (!valid) {
+            displayBoard();
+            std::cout << player.getName() << " (" << player.getColor()
+                      << "), Enter the position of your starting tile (Column Letter / Row Number) : ";
+            std::cin >> colChar >> row;
+
+            int col = toupper(colChar) - 'A';
+
+            if (row >= 0 && row < board.getRows() && col >= 0 && col < board.getCols()) {
+                if (board.getGrid()[row][col] == '.') {
+                    valid = true;
+
+                    auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
+                    grid[row][col] = '#';
+
+                    auto& owner = const_cast<std::vector<std::vector<int>>&>(board.getOwnerGrid());
+                    owner[row][col] = player.getID();
+
+                    std::cout << "Tile placed in " << colChar << row << "\n\n";
+                } else {
+                    std::cout << "This slot is already taken, please choose another position.\n";
+                }
+            } else {
+                std::cout << "Invalid coordinates, column between A-"
+                          << static_cast<char>('A' + board.getCols() - 1)
+                          << " and line between 0-" << board.getRows() - 1 << ".\n";
+            }
+        }
+    }
+
+    std::cout << "All the starting tiles have been placed!\n";
+    displayBoard();
 }
 
 /* ---------------------- BOUCLE DE JEU ---------------------- */
@@ -137,7 +216,7 @@ void Game::playTurn(Player& player) {
     //   q = abandon de la pose (rare, mais on le gère)
     while (true) {
         char cmd = readChoice(
-            "Actions [p=place, e=exchange, r=rotate, f=flip, q=cancel] : ",
+            "Actions :  p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
             "perfq"
         );
 
@@ -189,9 +268,6 @@ void Game::promptTransform(Tile& current) const {
 
 bool Game::promptExchange(Tile& current) {
     auto ids = queue.nextTileIds(5);
-    std::cout << "Fenetre [0..4] IDs: ";
-    for (auto& id : ids) std::cout << id << " ";
-    std::cout << "\n";
 
     int index = readIntInRange("Choose the tile you want to exchange with your current one (1 to 5) : ", 1, 5);
 
@@ -205,20 +281,29 @@ bool Game::promptExchange(Tile& current) {
 }
 
 bool Game::promptPlace(Tile& current, int playerId) {
-    bool doFlip = readYesNo("Flip the tile before placing it ? (y/n) : ");
-    int rot = readIntInRange("Number of 90° rotations (0 to 3) : ", 0, 3);
+    int x = -1;
+    while (true) {
+        char maxColChar = 'A' + std::min(board.getCols(), 26) - 1;
+        std::cout << "X origin (A-";
+        if (board.getCols() <= 26) std::cout << maxColChar;
+        else std::cout << colToLetters(board.getCols() - 1);
+        std::cout << ") : ";
 
-    int x = readIntInRange("X's origin (0 to cols-1) : ", 0, board.getCols()-1);
-    int y = readIntInRange("Y's origin (0 to rows-1) : ", 0, board.getRows()-1);
+        std::string s; std::getline(std::cin, s);
+        x = lettersToCol(s);
+        if (x >= 0 && x < board.getCols()) break;
 
-    auto pts = current.footprint(x, y, rot, doFlip);
-
-    if (!canPlaceFootprint(pts)) {
-        std::cout << "Move forbidden (Colliding tile or out of the board).\n";
-        return false;
+        std::cout << "Invalid column. Please enter letters between A and "
+                  << colToLetters(board.getCols() - 1) << ".\n";
     }
 
-    // Place
+    int y = readIntInRange("Y origin (0 to rows-1) : ", 0, board.getRows() - 1);
+
+    auto pts = current.footprint(x, y, 0, false);
+    if (!canPlaceFootprint(pts)) {
+        std::cout << "Invalid position (collision or out of bounds).\n";
+        return false;
+    }
     placeFootprint(pts, playerId);
     return true;
 }
