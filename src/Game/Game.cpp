@@ -1,4 +1,7 @@
 #ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 static void enableAnsiOnWindows() {
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -15,6 +18,7 @@ static void enableAnsiOnWindows() {}
 #include "../../include/Render/Renderer.hpp"
 #include <iostream>
 #include <algorithm>
+#include <cctype>
 #include <limits>
 
 static std::string colToLetters(int index) {
@@ -300,7 +304,7 @@ bool Game::promptPlace(Tile& current, int playerId) {
     int y = readIntInRange("Y origin (0 to rows-1) : ", 0, board.getRows() - 1);
 
     auto pts = current.footprint(x, y, 0, false);
-    if (!canPlaceFootprint(pts)) {
+    if (!canPlaceFootprint(pts, playerId)) {
         std::cout << "Invalid position (collision or out of bounds).\n";
         return false;
     }
@@ -356,15 +360,38 @@ char Game::readChoice(const std::string& prompt, const std::string& allowed) {
 
 /* ---------------------- AIDES PLACEMENT ---------------------- */
 
-bool Game::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts) const {
-    const auto& grid = board.getGrid();
-    int rows = board.getRows();
-    int cols = board.getCols();
+bool Game::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const {
+    const auto& grid      = board.getGrid();
+    const auto& ownerGrid = board.getOwnerGrid();
+    const int rows = board.getRows();
+    const int cols = board.getCols();
+
     for (auto [x,y] : pts) {
         if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
         if (grid[y][x] != '.') return false;
     }
-    return true;
+
+    static const int DX[4] = {1,-1,0,0};
+    static const int DY[4] = {0,0,1,-1};
+
+    bool touchesOwn = false;
+
+    for (auto [x,y] : pts) {
+        for (int k = 0; k < 4; ++k) {
+            int nx = x + DX[k], ny = y + DY[k];
+            if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
+            int owner = ownerGrid[ny][nx];
+            if (owner != 0) {
+                if (owner != playerId) {
+                    return false;
+                } else {
+                    touchesOwn = true;
+                }
+            }
+        }
+    }
+
+    return touchesOwn;
 }
 
 void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) {

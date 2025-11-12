@@ -52,7 +52,7 @@ private:
     static bool readYesNo(const std::string& prompt);
     static char readChoice(const std::string& prompt, const std::string& allowed); // ex "pefrq"
 
-    bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts) const;
+    bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
     void placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
 
     void displayBoard() const;
