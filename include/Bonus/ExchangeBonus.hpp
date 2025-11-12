@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_EXCHANGEBONUS_H
-#define INC_2CCPP_PROJECT_EXCHANGEBONUS_H
+#ifndef EXCHANGEBONUS_HPP_INCLUDED
+#define EXCHANGEBONUS_HPP_INCLUDED
 
 #include <string>
 #include "Bonus.hpp"
@@ -11,4 +11,4 @@ class ExchangeBonus : public Bonus {
 };
 
 
-#endif
+#endif // EXCHANGEBONUS_HPP_INCLUDED

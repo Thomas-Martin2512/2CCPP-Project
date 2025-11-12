@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_STONEBONUS_H
-#define INC_2CCPP_PROJECT_STONEBONUS_H
+#ifndef STONEBONUS_HPP_INCLUDED
+#define STONEBONUS_HPP_INCLUDED
 
 #include "Bonus.hpp"
 
@@ -11,4 +11,4 @@ class StoneBonus : public Bonus {
 
 
 
-#endif
+#endif // STONEBONUS_HPP_INCLUDED

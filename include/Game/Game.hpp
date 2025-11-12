@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_GAME_H
-#define INC_2CCPP_PROJECT_GAME_H
+#ifndef GAME_HPP_INCLUDED
+#define GAME_HPP_INCLUDED
 
 #include "Board/Board.hpp"
 #include "Display_Board/Display_Board.hpp"
@@ -27,4 +27,4 @@ private:
     std::string getAnsiColor(const std::string& colorName) const;
 };
 
-#endif
+#endif // GAME_HPP_INCLUDED
