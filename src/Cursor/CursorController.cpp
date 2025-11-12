@@ -17,6 +17,7 @@ CursorController::CursorController(Board& b, Game& g)
     : board(b), game(g), cursorX(0), cursorY(0) { }
 
 int CursorController::getArrowKey() const {
+#ifdef _WIN32
     int ch = _getch();
     if (ch == 0 || ch == 224) {
         switch (_getch()) {
@@ -27,6 +28,25 @@ int CursorController::getArrowKey() const {
         }
     } else if (ch == 13) return 4;
     return -1;
+#else
+    struct termios oldt, newt;
+    char ch;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    ch = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    switch (ch) {
+        case 'w': return 0;
+        case 's': return 1;
+        case 'a': return 2;
+        case 'd': return 3;
+        case '\n': return 4;
+        default: return -1;
+    }
+#endif
 }
 
 void CursorController::drawBoard(int playerId) const {
