@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_CURSORCONTROLLER_H
-#define INC_2CCPP_PROJECT_CURSORCONTROLLER_H
+#ifndef CURSORCONTROLLER_HPP_INCLUDED
+#define CURSORCONTROLLER_HPP_INCLUDED
 
 #include "Board/Board.hpp"
 #include "Game/Game.hpp"
@@ -23,4 +23,4 @@ class CursorController {
 
 
 
-#endif
+#endif // CURSORCONTROLLER_HPP_INCLUDED

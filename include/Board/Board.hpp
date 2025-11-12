@@ -30,6 +30,8 @@ class Board {
         const std::vector<std::vector<char>>& getGrid() const;
         const std::vector<std::vector<int>>& getOwnerGrid() const { return ownerGrid; };
         const std::map<std::pair<int,int>, std::shared_ptr<Bonus>>& getBonus() const;
+        bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
+        bool placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
 };
 
 

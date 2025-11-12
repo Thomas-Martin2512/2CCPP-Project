@@ -88,3 +88,20 @@ void Board::displayGrid() const {
 int Board::getRows() const { return rows; }
 int Board::getCols() const { return cols; }
 const std::vector<std::vector<char>>& Board::getGrid() const { return grid; }
+
+bool Board::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int /*playerId*/) const {
+    for (auto [x,y] : pts) {
+        if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
+        if (grid[y][x] != '.') return false;  // occupé
+    }
+    return true;
+}
+
+bool Board::placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) {
+    if (!canPlaceFootprint(pts, playerId)) return false;
+    for (auto [x,y] : pts) {
+        grid[y][x] = '#';
+        ownerGrid[y][x] = playerId;
+    }
+    return true;
+}
