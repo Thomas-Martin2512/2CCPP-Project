@@ -86,8 +86,9 @@ void Game::setupBoard() {
 
 
 void Game::shufflePlayerOrder() {
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
-    std::random_shuffle(players.begin(), players.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(players.begin(), players.end(), g);
     std::cout << "\nOrdre de jeu aléatoire :" << std::endl;
     for (size_t i = 0; i < players.size(); ++i) {
         std::cout << i + 1 << ". " << players[i].getName() << std::endl;
