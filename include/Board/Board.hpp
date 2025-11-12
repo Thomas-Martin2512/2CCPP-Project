@@ -13,6 +13,7 @@ class Board {
         int cols;
         std::vector<std::vector<char>> grid;
         std::map<std::pair<int,int>, std::shared_ptr<Bonus>> bonuses;
+        std::vector<std::vector<int>> ownerGrid;
 
     public:
         Board();
@@ -21,10 +22,13 @@ class Board {
         void initGrid(int numberOfPlayers);
         void placeBonus(int numberOfPlayers);
         void displayGrid() const;
+        void placeTile(int x, int y, int playerId);
+
 
         int getRows() const;
         int getCols() const;
         const std::vector<std::vector<char>>& getGrid() const;
+        const std::vector<std::vector<int>>& getOwnerGrid() const { return ownerGrid; };
         const std::map<std::pair<int,int>, std::shared_ptr<Bonus>>& getBonus() const;
 };
 
