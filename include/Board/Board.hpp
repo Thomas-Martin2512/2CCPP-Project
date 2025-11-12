@@ -23,6 +23,7 @@ class Board {
         void placeBonus(int numberOfPlayers);
         void displayGrid() const;
         void placeTile(int x, int y, int playerId);
+        void checkBonusCapture(int x, int y, int playerId);
 
 
         int getRows() const;

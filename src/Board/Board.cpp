@@ -76,6 +76,40 @@ void Board::placeTile(int x, int y, int playerId) {
     }
 }
 
+void Board::checkBonusCapture(int x, int y, int playerId) {
+    static const std::vector<std::pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+
+    for (auto& [bx, by_bonus] : bonuses) {
+        int bx_pos = bx.first;
+        int by_pos = bx.second;
+
+        bool surrounded = true;
+        for (auto [dx, dy] : directions) {
+            int nx = bx_pos + dx;
+            int ny = by_pos + dy;
+
+            if (nx < 0 || ny < 0 || nx >= rows || ny >= cols) {
+                surrounded = false;
+                break;
+            }
+
+            if (ownerGrid[ny][nx] != playerId) {
+                surrounded = false;
+                break;
+            }
+        }
+
+        if (surrounded) {
+            ownerGrid[by_pos][bx_pos] = playerId;
+            std::cout << "🎁 Bonus capturé par le joueur " << playerId
+                      << " : " << bonuses[{bx_pos, by_pos}]->getName() << std::endl;
+        }
+    }
+}
+
+
 void Board::displayGrid() const {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
