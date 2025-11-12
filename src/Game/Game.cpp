@@ -21,6 +21,15 @@ static void enableAnsiOnWindows() {}
 #include <cctype>
 #include <limits>
 
+/* ---------------------- HELPERS ---------------------- */
+
+static std::string trim_ws(const std::string& s) {
+    size_t b = 0, e = s.size();
+    while (b < e && std::isspace(static_cast<unsigned char>(s[b]))) ++b;
+    while (e > b && std::isspace(static_cast<unsigned char>(s[e-1]))) --e;
+    return s.substr(b, e - b);
+}
+
 static std::string colToLetters(int index) {
     std::string result;
     while (index >= 0) {
@@ -69,6 +78,7 @@ void Game::start() {
 
     displayBoard();
     runRounds(9);
+    finishAndScore();
 
     std::cout << "\n THE GAME IS OVER \n";
 }
@@ -76,7 +86,7 @@ void Game::start() {
 /* ---------------------- SETUP ---------------------- */
 
 void Game::setupPlayers() {
-    int numberOfPlayers = readIntInRange("How many players will play (2 to 9) ? : ", 2, 9);
+    int numberOfPlayers = readIntInRangeStrict("How many players will play (2 to 9) ? : ", 2, 9);
 
     std::vector<std::string> availableColors = {
         "red", "blue", "green", "yellow",
@@ -150,44 +160,55 @@ void Game::setupTiles() {
 }
 
 void Game::placeStartingTiles() {
-    std::cout << "\n=== Placing the starting tiles ===\n";
-
     for (auto& player : players) {
         bool valid = false;
-        char colChar;
-        int row;
-
         while (!valid) {
             displayBoard();
             std::cout << player.getName() << " (" << player.getColor()
-                      << "), Enter the position of your starting tile (Column Letter / Row Number) : ";
-            std::cin >> colChar >> row;
-
-            int col = toupper(colChar) - 'A';
-
-            if (row >= 0 && row < board.getRows() && col >= 0 && col < board.getCols()) {
-                if (board.getGrid()[row][col] == '.') {
-                    valid = true;
-
-                    auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
-                    grid[row][col] = '#';
-
-                    auto& owner = const_cast<std::vector<std::vector<int>>&>(board.getOwnerGrid());
-                    owner[row][col] = player.getID();
-
-                    std::cout << "Tile placed in " << colChar << row << "\n\n";
-                } else {
-                    std::cout << "This slot is already taken, please choose another position.\n";
-                }
-            } else {
-                std::cout << "Invalid coordinates, column between A-"
-                          << static_cast<char>('A' + board.getCols() - 1)
-                          << " and line between 0-" << board.getRows() - 1 << ".\n";
+                      << "), Enter your starting tile (Column Letter + Row Number like 'A0'): ";
+            std::string input;
+            std::getline(std::cin, input);
+            if (input.empty()) {
+                std::cout << "Empty input. Try again.\n";
+                continue;
             }
+
+            std::string letters, digits;
+            for (char c : input) {
+                if (std::isalpha(static_cast<unsigned char>(c))) letters += c;
+                else if (std::isdigit(static_cast<unsigned char>(c))) digits += c;
+            }
+
+            if (letters.empty() || digits.empty()) {
+                std::cout << "Invalid format. Example: A0 or B12.\n";
+                continue;
+            }
+
+            int col = lettersToCol(letters);
+            int row = std::stoi(digits);
+
+            if (row < 0 || row >= board.getRows() || col < 0 || col >= board.getCols()) {
+                std::cout << "Invalid coordinates. Try again.\n";
+                continue;
+            }
+
+            if (board.getGrid()[row][col] != '.') {
+                std::cout << "This slot is already taken.\n";
+                continue;
+            }
+
+            auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
+            grid[row][col] = '#';
+
+            auto& owner = const_cast<std::vector<std::vector<int>>&>(board.getOwnerGrid());
+            owner[row][col] = player.getID();
+
+            std::cout << "Tile placed in " << letters << row << "\n\n";
+            valid = true;
         }
     }
 
-    std::cout << "All the starting tiles have been placed!\n";
+    std::cout << "All starting tiles have been placed ! The Game may begin.\n";
     displayBoard();
 }
 
@@ -211,13 +232,6 @@ void Game::playTurn(Player& player) {
     Tile current = queue.draw();
     showQueueWithCurrent(current);
 
-    // Boucle d’actions sur la tuile avant placement
-    // Actions autorisées:
-    //   p = placer
-    //   e = échanger contre fenêtre [0..4]
-    //   r = rotate (90° antihoraire)
-    //   f = flip
-    //   q = abandon de la pose (rare, mais on le gère)
     while (true) {
         char cmd = readChoice(
             "Actions :  p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
@@ -264,10 +278,6 @@ bool Game::isGameOver() const {
 void Game::showQueueWithCurrent(const Tile& current) const {
     std::cout << "\n";
     queue.display(std::cout, current, 5);
-}
-
-void Game::promptTransform(Tile& current) const {
-    // Non utilisée directement (on a les actions r/f), mais dispo si tu veux proposer un menu guidé.
 }
 
 bool Game::promptExchange(Tile& current) {
@@ -317,15 +327,17 @@ bool Game::promptPlace(Tile& current, int playerId) {
 int Game::readIntInRange(const std::string& prompt, int minVal, int maxVal) {
     while (true) {
         std::cout << prompt;
-        int v;
-        if (std::cin >> v) {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            if (v >= minVal && v <= maxVal) return v;
-        } else {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::string input;
+        std::getline(std::cin, input);
+
+        if (!input.empty() && std::all_of(input.begin(), input.end(), ::isdigit)) {
+            int v = std::stoi(input);
+            if (v >= minVal && v <= maxVal)
+                return v;
         }
-        std::cout << "Invalid input. Try again (" << minVal << ".." << maxVal << ").\n";
+
+        std::cout << "Invalid input. Please enter an integer between "
+                  << minVal << " and " << maxVal << ".\n";
     }
 }
 
@@ -339,7 +351,7 @@ bool Game::readYesNo(const std::string& prompt) {
             if (c=='y' || c=='o') return true;
             if (c=='n') return false;
         }
-        std::cout << "Entree invalide. Tapez y/oui ou n/non.\n";
+        std::cout << "Wrong input. Type y/n.\n";
     }
 }
 
@@ -348,13 +360,111 @@ char Game::readChoice(const std::string& prompt, const std::string& allowed) {
         std::cout << prompt;
         std::string s;
         std::getline(std::cin, s);
+
         if (!s.empty()) {
-            char c = static_cast<char>(::tolower(s[0]));
-            if (allowed.find(c) != std::string::npos) return c;
+            char c = static_cast<char>(std::tolower(s[0]));
+            if (allowed.find(c) != std::string::npos)
+                return c;
         }
-        std::cout << "Entree invalide. Choix acceptes: ";
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+
+        std::cout << "Invalid choice. Allowed: ";
         for (char a : allowed) std::cout << a << " ";
         std::cout << "\n";
+    }
+}
+
+std::string Game::trim(const std::string& s) {
+    return trim_ws(s);
+}
+
+bool Game::parseIntStrict(const std::string& s, int& out) {
+    std::string t = trim(s);
+    if (t.empty()) return false;
+    size_t i = 0;
+    if (t[0] == '+' || t[0] == '-') {
+        if (t.size() == 1) return false;
+        i = 1;
+    }
+    for (; i < t.size(); ++i) {
+        if (!std::isdigit(static_cast<unsigned char>(t[i]))) return false;
+    }
+    try {
+        long long v = std::stoll(t);
+        if (v < std::numeric_limits<int>::min() || v > std::numeric_limits<int>::max()) return false;
+        out = static_cast<int>(v);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+int Game::readIntInRangeStrict(const std::string& prompt, int minVal, int maxVal) {
+    while (true) {
+        std::cout << prompt;
+        std::string line;
+        if (!std::getline(std::cin, line)) {
+            std::cin.clear();
+            continue;
+        }
+        int v;
+        if (parseIntStrict(line, v) && v >= minVal && v <= maxVal) {
+            return v;
+        }
+        std::cout << "Invalid input. Enter an integer between "
+                  << minVal << " and " << maxVal << ".\n";
+    }
+}
+
+bool Game::readColRow(const std::string& prompt, int maxCol, int maxRow, int& outCol, int& outRow) {
+    while (true) {
+        std::cout << prompt;
+        std::string line;
+        if (!std::getline(std::cin, line)) {
+            std::cin.clear();
+            continue;
+        }
+        line = trim(line);
+        if (line.empty()) {
+            std::cout << "Empty input.\n";
+            continue;
+        }
+
+        std::string letters, digits;
+        for (char ch : line) {
+            if (std::isalpha(static_cast<unsigned char>(ch))) letters.push_back(ch);
+            else if (std::isdigit(static_cast<unsigned char>(ch))) digits.push_back(ch);
+            else if (std::isspace(static_cast<unsigned char>(ch))) continue;
+            else { letters.clear(); digits.clear(); break; }
+        }
+        if (letters.empty() || digits.empty()) {
+            std::cout << "Format must be <LETTER><NUMBER>, 'A0'.\n";
+            continue;
+        }
+
+        int col = lettersToCol(letters);
+        int row;
+        if (!parseIntStrict(digits, row)) {
+            std::cout << "Row must be an integer.\n";
+            continue;
+        }
+
+        if (col < 0 || col >= maxCol) {
+            std::cout << "Column out of range. Valid: A.." << colToLetters(maxCol-1) << ".\n";
+            continue;
+        }
+        if (row < 0 || row >= maxRow) {
+            std::cout << "Row out of range. Valid: 0.." << (maxRow-1) << ".\n";
+            continue;
+        }
+
+        outCol = col;
+        outRow = row;
+        return true;
     }
 }
 
@@ -396,9 +506,72 @@ bool Game::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int pla
 
 void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) {
     for (auto [x,y] : pts) {
-        board.placeTile(x, y, playerId); // utilise ta méthode existante (une case à la fois)
+        board.placeTile(x, y, playerId);
     }
-    std::cout << "Tuile placee (" << pts.size() << " cases).\n";
+}
+
+/* ---------------------- FIN DE PARTIE ---------------------- */
+
+void Game::finishAndScore() {
+    auto scores = computeScores();
+    printScores(scores);
+}
+
+std::vector<Game::FinalScore> Game::computeScores() const {
+    const auto& ownerGrid = board.getOwnerGrid();
+    int rows = board.getRows();
+    int cols = board.getCols();
+
+    std::vector<FinalScore> results;
+    results.reserve(players.size());
+
+    for (const auto& p : players) {
+        int id = p.getID();
+        int totalCells = 0;
+        int maxSquare = 0;
+
+        std::vector<std::vector<int>> dp(rows, std::vector<int>(cols, 0));
+
+        for (int y = 0; y < rows; ++y) {
+            for (int x = 0; x < cols; ++x) {
+                if (ownerGrid[y][x] == id) {
+                    totalCells++;
+                    if (x > 0 && y > 0)
+                        dp[y][x] = 1 + std::min({ dp[y-1][x], dp[y][x-1], dp[y-1][x-1] });
+                    else
+                        dp[y][x] = 1;
+                    maxSquare = std::max(maxSquare, dp[y][x]);
+                }
+            }
+        }
+
+        results.push_back({ id, maxSquare, totalCells });
+    }
+
+    return results;
+}
+
+void Game::printScores(const std::vector<FinalScore>& scores) const {
+    std::cout << "\n FINAL RESULTS \n";
+
+    auto sorted = scores;
+    std::sort(sorted.begin(), sorted.end(),
+              [](const FinalScore& a, const FinalScore& b) {
+                  if (a.maxSquare != b.maxSquare)
+                      return a.maxSquare > b.maxSquare;
+                  return a.cellCount > b.cellCount;
+              });
+
+    for (const auto& s : sorted) {
+        const auto& player = players[s.playerId - 1];
+        std::cout << player.getName() << " (" << player.getColor() << ")"
+                  << " Biggest square : " << s.maxSquare
+                  << ", Total cells : " << s.cellCount << "\n";
+    }
+
+    const auto& winner = players[sorted.front().playerId - 1];
+    std::cout << "\n The Winner is : " << winner.getName()
+              << " (" << winner.getColor() << ")!\n";
 }
 
 /* ---------------------- AFFICHAGE ---------------------- */

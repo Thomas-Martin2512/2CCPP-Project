@@ -44,9 +44,13 @@ private:
     bool isGameOver() const;
 
     void showQueueWithCurrent(const Tile& current) const;
-    void promptTransform(Tile& current) const;
     bool promptExchange(Tile& current) ;
     bool promptPlace(Tile& current, int playerId);
+
+    static std::string trim(const std::string& s);
+    static bool parseIntStrict(const std::string& s, int& out);
+    static int readIntInRangeStrict(const std::string& prompt, int minVal, int maxVal);
+    static bool readColRow(const std::string& prompt, int maxCol, int maxRow, int& outCol, int& outRow);
 
     static int readIntInRange(const std::string& prompt, int minVal, int maxVal);
     static bool readYesNo(const std::string& prompt);
@@ -57,6 +61,16 @@ private:
 
     void displayBoard() const;
     void announceOrder() const;
+
+    struct FinalScore {
+        int playerId;
+        int maxSquare;
+        int cellCount;
+    };
+
+    void finishAndScore();
+    std::vector<FinalScore> computeScores() const;
+    void printScores(const std::vector<FinalScore>& scores) const;
 };
 
 
