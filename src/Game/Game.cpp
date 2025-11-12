@@ -144,7 +144,6 @@ void Game::announceOrder() const {
 void Game::setupBoard() {
     int numPlayers = static_cast<int>(players.size());
     board = Board(numPlayers);
-    board.setGame(this);
     board.placeBonus(numPlayers);
     display = new Display_Board(board);
 }
@@ -518,11 +517,9 @@ void Game::finalSingleCellPhase() {
 
 bool Game::promptPlaceSingleCell(int playerId) {
     int x, y;
-    if (!readColRow(
-            "Enter origin (e.g. A0, C12, AA7): ",
-            board.getCols(), board.getRows(),
-            x, y)) {
-            }
+    if (!readColRow("Enter origin (e.g. A0, C12, AA7): ",board.getCols(), board.getRows(),x, y)) {
+        return false;
+    }
 
     std::vector<std::pair<int,int>> pts = { {x, y} };
 
