@@ -6,18 +6,31 @@
 #include <utility>
 
 
-
+/**
+ * @class Tile
+ * @brief Représente une tuile du jeu (forme, couleur, rotation, etc.)
+ *
+ * Chaque tuile contient un identifiant, une couleur et un ensemble de coordonnées (x, y)
+ * représentant la forme dans une grille
+*/
 class Tile {
     protected:
-        std::string id_;
-        std::string color_;
-        std::vector<std::pair<int, int>> cells_;
+        std::string id_;    ///< Identifiant unique de la tuile (ex: "TILE_00")
+        std::string color_;     ///< Couleur de la tuile
+        std::vector<std::pair<int, int>> cells_;    ///< Coordonnées des cases occupées
 
     public:
         Tile() = default;
+        /**
+        * @brief Construit une tuile.
+        * @param id Identifiant unique
+        * @param cells Coordonnées des cases formants la tuile
+        * @Param color Couleur de la tuile qui va être posée
+        */
         Tile(std::string id, std::vector<std::pair<int, int>> cells, std::string color = "green");
         virtual ~Tile() = default;
 
+        /// Retourne l'identifiant de la tuile
         virtual const std::string& getId() const;
         virtual const std::string& getColor() const;
         virtual const std::vector<std::pair<int, int>>& getCells() const;

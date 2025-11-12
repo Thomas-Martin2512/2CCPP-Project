@@ -1,6 +1,7 @@
 # Dossiers de build générés par CLion/CMake
 cmake-build-*
 build/
+docs/
 
 # Fichiers de configuration de l'IDE CLion
 .idea/
