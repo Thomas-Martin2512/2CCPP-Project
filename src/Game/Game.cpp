@@ -236,14 +236,14 @@ void Game::runRounds(int maxRounds) {
 }
 
 void Game::playTurn(Player& player) {
-    std::cout << "\n" << player.getName() << "'s turn \n";
+    std::cout << "\n" << player.getName() << "'s turn\n";
 
     Tile current = queue.draw();
     showQueueWithCurrent(current);
 
     while (true) {
         char cmd = readChoice(
-            "Actions :  p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
+            "Actions : p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
             "perfq"
         );
 
@@ -254,8 +254,14 @@ void Game::playTurn(Player& player) {
             current.flip();
             showQueueWithCurrent(current);
         } else if (cmd == 'e') {
-            if (promptExchange(current)) {
-                showQueueWithCurrent(current);
+            if (player.getExchangeCoupons() <= 0) {
+                std::cout << "You have no exchange coupons left!\n";
+            } else {
+                if (promptExchange(current)) {
+                    player.useExchangeCoupon();
+                    std::cout << "Coupon used. Remaining: " << player.getExchangeCoupons() << "\n";
+                    showQueueWithCurrent(current);
+                }
             }
         } else if (cmd == 'p') {
             if (promptPlace(current, player.getID())) {
