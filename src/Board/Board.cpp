@@ -147,7 +147,6 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
         }
     }
 
-    // Supprime les bonus capturés
     for (auto& key : capturedKeys) {
         bonuses.erase(key);
     }
