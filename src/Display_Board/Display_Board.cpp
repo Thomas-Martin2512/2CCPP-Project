@@ -44,11 +44,10 @@ void Display_Board::display(const Game& game) const {
         return;
     }
 
-    std::cout << "    ";
+    std::cout << "   ";
     for (int j = 0; j < cols; ++j) {
-        std::string label = colToLetters(j);
-        if (label.size() == 1) std::cout << " " << label << " ";
-        else                   std::cout << label << " ";
+        std::string lab = colToLetters(j);
+        std::cout << std::setw(2) << lab;
     }
     std::cout << "\n";
 
