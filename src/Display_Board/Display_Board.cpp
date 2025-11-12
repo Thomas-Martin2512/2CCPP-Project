@@ -58,22 +58,26 @@ void Display_Board::display(const Game& game) const {
     for (int i = 0; i < rows; ++i) {
         std::cout << std::setw(2) << i << " |";
         for (int j = 0; j < cols; ++j) {
-            auto it = bonuses.find({i, j});
+            char cell = grid[i][j];
+            int owner = ownerGrid[i][j];
+
+            auto it = bonuses.find({j, i});
             if (it != bonuses.end()) {
-                std::cout << it->second->getSymbol() << " ";
-            } else {
-                char cell = grid[i][j];
-                if (cell == '#') {
-                    int owner = ownerGrid[i][j];
-                    if (owner > 0 && owner <= static_cast<int>(players.size())) {
-                        std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
-                        std::cout << ansi << "#" << "\033[0m ";
-                    } else {
-                        std::cout << "# ";
-                    }
+                if (owner > 0 && owner <= static_cast<int>(players.size())) {
+                    std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
+                    std::cout << ansi << it->second->getSymbol() << "\033[0m ";
                 } else {
-                    std::cout << ". ";
+                    std::cout << it->second->getSymbol() << " ";
                 }
+            } else if (cell == '#') {
+                if (owner > 0 && owner <= static_cast<int>(players.size())) {
+                    std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
+                    std::cout << ansi << "#" << "\033[0m ";
+                } else {
+                    std::cout << "# ";
+                }
+            } else {
+                std::cout << ". ";
             }
         }
         std::cout << "|\n";
@@ -83,3 +87,4 @@ void Display_Board::display(const Game& game) const {
     for (int j = 0; j < cols; ++j) std::cout << "--";
     std::cout << "+\n";
 }
+
