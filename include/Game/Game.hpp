@@ -29,7 +29,7 @@ public:
 
     void start();
     void placeStartingTiles();
-
+    Player& getPlayerById(int id);
     const std::vector<Player>& getPlayers() const { return players; }
     std::string getAnsiColor(const std::string& colorName) const;
 

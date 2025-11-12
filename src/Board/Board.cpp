@@ -7,7 +7,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-
+#include "../../include/Player/Player.hpp"
+#include "../../include/Bonus/Bonus.hpp"
+#include "../../include/Game/Game.hpp"
 
 Board::Board() : rows(0), cols(0) {}
 
@@ -81,16 +83,18 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
         {1, 0}, {-1, 0}, {0, 1}, {0, -1}
     };
 
-    for (auto& [bx, by_bonus] : bonuses) {
-        int bx_pos = bx.first;
-        int by_pos = bx.second;
+    std::vector<std::pair<int,int>> capturedKeys;
+
+    for (auto& [pos, bonusPtr] : bonuses) {
+        int bx = pos.first;
+        int by = pos.second;
 
         bool surrounded = true;
         for (auto [dx, dy] : directions) {
-            int nx = bx_pos + dx;
-            int ny = by_pos + dy;
+            int nx = bx + dx;
+            int ny = by + dy;
 
-            if (nx < 0 || ny < 0 || nx >= rows || ny >= cols) {
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) {
                 surrounded = false;
                 break;
             }
@@ -102,12 +106,28 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
         }
 
         if (surrounded) {
-            ownerGrid[by_pos][bx_pos] = playerId;
-            std::cout << "🎁 Bonus capturé par le joueur " << playerId
-                      << " : " << bonuses[{bx_pos, by_pos}]->getName() << std::endl;
+            ownerGrid[by][bx] = playerId;
+            std::cout << "Bonus captured by player " << playerId
+                      << " : " << bonusPtr->getName() << std::endl;
+
+            if (bonusPtr->getSymbol() == "E" && gameRef) {
+                Player& player = gameRef->getPlayerById(playerId);
+                player.addExchangeCoupon();
+                std::cout << "Player " << player.getName()
+                          << " receives an additional exchange voucher! ("
+                          << player.getExchangeCoupons() << " in total)\n";
+            }
+
+            capturedKeys.push_back(pos);
         }
     }
+
+    // Supprimer les bonus capturés
+    for (auto& key : capturedKeys) {
+        bonuses.erase(key);
+    }
 }
+
 
 
 void Board::displayGrid() const {
