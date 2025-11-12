@@ -54,7 +54,7 @@ private:
 
     static int readIntInRange(const std::string& prompt, int minVal, int maxVal);
     static bool readYesNo(const std::string& prompt);
-    static char readChoice(const std::string& prompt, const std::string& allowed); // ex "pefrq"
+    static char readChoice(const std::string& prompt, const std::string& allowed);
 
     bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
     void placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
@@ -68,6 +68,8 @@ private:
         int cellCount;
     };
 
+    void finalSingleCellPhase();
+    bool promptPlaceSingleCell(int playerId);
     void finishAndScore();
     std::vector<FinalScore> computeScores() const;
     void printScores(const std::vector<FinalScore>& scores) const;
