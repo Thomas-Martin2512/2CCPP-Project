@@ -496,21 +496,32 @@ void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int player
 /* ---------------------- FIN DE PARTIE ---------------------- */
 
 void Game::finalSingleCellPhase() {
-    std::cout << "\n FINAL BONUS PHASE: place a 1x1 cell \n";
+    std::cout << "\n FINAL BONUS PHASE: place a 1x1 cell (cost: 1 exchange coupon) \n";
+
     for (auto& p : players) {
         displayBoard();
-        std::cout << p.getName() << " (" << p.getColor()
-                  << "), you may place ONE 1x1 cell.\n";
+        std::cout << p.getName() << " (" << p.getColor() << ")\n";
 
-        if (!readYesNo("Do you want to place it? (y/n): ")) {
+        int coupons = p.getExchangeCoupons();
+        if (coupons <= 0) {
+            std::cout << "You have no exchange coupons left, you cannot buy the final 1x1 tile.\n";
+            continue;
+        }
+
+        std::cout << "You currently have " << coupons << " exchange coupon(s).\n";
+
+        if (!readYesNo("Do you want to spend 1 coupon to place a 1x1 tile? (y/n): ")) {
             std::cout << "Skipped.\n";
             continue;
         }
 
         if (promptPlaceSingleCell(p.getID())) {
+            p.useExchangeCoupon();
+            std::cout << "1 exchange coupon spent. Remaining: "
+                      << p.getExchangeCoupons() << "\n";
             displayBoard();
         } else {
-            std::cout << "No valid position. Skipped.\n";
+            std::cout << "No valid position. Coupon not spent.\n";
         }
     }
 }
