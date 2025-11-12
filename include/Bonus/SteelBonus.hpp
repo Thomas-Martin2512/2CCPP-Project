@@ -1,5 +1,5 @@
-#ifndef INC_2CCPP_PROJECT_STEELBONUS_H
-#define INC_2CCPP_PROJECT_STEELBONUS_H
+#ifndef STEELBONUS_HPP_INCLUDED
+#define STEELBONUS_HPP_INCLUDED
 
 #include "Bonus.hpp"
 
@@ -10,4 +10,4 @@ class StealBonus : public Bonus {
 };
 
 
-#endif
+#endif // STEELBONUS_HPP_INCLUDED
