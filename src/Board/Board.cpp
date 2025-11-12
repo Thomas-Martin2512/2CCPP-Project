@@ -77,10 +77,16 @@ void Board::placeTile(int x, int y, int playerId) {
         ownerGrid[y][x] = playerId;
     }
 }
+int Board::letterToCol(const std::string& letter) {
+    if (letter.empty()) return -1;
+    char c = toupper(letter[0]);
+    if (c < 'A' || c > 'Z') return -1;
+    return c - 'A';
+}
 
 void Board::checkBonusCapture(int x, int y, int playerId) {
-    static const std::vector<std::pair<int, int>> directions = {
-        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    static const std::vector<std::pair<int,int>> directions = {
+        {1,0}, {-1,0}, {0,1}, {0,-1}
     };
 
     std::vector<std::pair<int,int>> capturedKeys;
@@ -94,12 +100,7 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
             int nx = bx + dx;
             int ny = by + dy;
 
-            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) {
-                surrounded = false;
-                break;
-            }
-
-            if (ownerGrid[ny][nx] != playerId) {
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || ownerGrid[ny][nx] != playerId) {
                 surrounded = false;
                 break;
             }
@@ -118,15 +119,40 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
                           << player.getExchangeCoupons() << " in total)\n";
             }
 
+            if (bonusPtr->getSymbol() == "R") {
+                std::cout << "Player " << playerId
+                          << " can now place a stone (1x1 'X') on an empty cell.\n";
+
+                int px, py;
+                bool valid = false;
+                while (!valid) {
+                    std::string col;
+                    std::cout << "Enter stone position (column letter, row number) : ";
+                    std::cin >> col >> py;
+                    px = letterToCol(col);
+                    py--;
+
+                    if (px >= 0 && px < cols && py >= 0 && py < rows && grid[py][px] == '.') {
+                        grid[py][px] = 'X';
+                        ownerGrid[py][px] = 0;
+                        valid = true;
+                        std::cout << "Stone placed at " << col << py+1 << "\n";
+                    } else {
+                        std::cout << "Invalid or occupied cell, try again.\n";
+                    }
+                }
+            }
+
             capturedKeys.push_back(pos);
         }
     }
 
-    // Supprimer les bonus capturés
+    // Supprime les bonus capturés
     for (auto& key : capturedKeys) {
         bonuses.erase(key);
     }
 }
+
 
 
 
