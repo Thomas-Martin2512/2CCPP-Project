@@ -236,7 +236,8 @@ void Game::runRounds(int maxRounds) {
 }
 
 void Game::playTurn(Player& player) {
-    std::cout << "\n" << player.getName() << "'s turn \n";
+    std::cout << "\n=== Turn of " << player.getName() << " ===\n";
+    std::cout << "Tickets d'échange disponibles : " << player.getExchangeCoupons() << "\n";
 
     Tile current = queue.draw();
     showQueueWithCurrent(current);
@@ -254,19 +255,24 @@ void Game::playTurn(Player& player) {
             current.flip();
             showQueueWithCurrent(current);
         } else if (cmd == 'e') {
-            if (promptExchange(current)) {
-                showQueueWithCurrent(current);
+            if (player.getExchangeCoupons() > 0) {
+                if (promptExchange(current)) {
+                    player.useExchangeCoupon();
+                    showQueueWithCurrent(current);
+                }
+            } else {
+                std::cout << "You have no more exchange tickets !\n";
             }
         } else if (cmd == 'p') {
             if (promptPlace(current, player.getID())) {
                 displayBoard();
                 break;
             } else {
-                std::cout << "Invalid placement or cancelled.\n";
+                std::cout << "Invalid or cancelled placement.\n";
                 showQueueWithCurrent(current);
             }
         } else if (cmd == 'q') {
-            std::cout << "Cancelled move. Tile lost for this round.\n";
+            std::cout << "Placement cancelled. Tile lost for this round.\n";
             break;
         }
     }
