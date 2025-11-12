@@ -3,13 +3,12 @@
 #include "../include/Board/Board.hpp"
 #include "../include/Display_Board/Display_Board.hpp"
 #ifdef _WIN32
-// code Windows
-#include <windows.h>
 #include <conio.h>
+#define CLEAR_SCREEN "cls"
 #else
-// code Linux / Mac
 #include <termios.h>
 #include <unistd.h>
+#define CLEAR_SCREEN "clear"
 #endif
 class Game;
 
@@ -31,25 +30,27 @@ int CursorController::getArrowKey() const {
 }
 
 void CursorController::drawBoard(int playerId) const {
-    system("cls");
+    int ret = system(CLEAR_SCREEN);
+    (void)ret;
+
     const auto& grid = board.getGrid();
     const auto& ownerGrid = board.getOwnerGrid();
+    const auto& players = game.getPlayers();
 
     for (int i = 0; i < board.getRows(); ++i) {
         for (int j = 0; j < board.getCols(); ++j) {
-            if (i == cursorY && j == cursorX) {
-                std::cout << "[";
-            } else {
-                std::cout << " ";
-            }
+            if (i == cursorY && j == cursorX) std::cout << "[";
+            else std::cout << " ";
 
             char cell = grid[i][j];
             if (cell == '#') {
                 int owner = ownerGrid[i][j];
-                if (owner > 0 && owner <= game.getPlayers().size()) {
-                    std::string ansi = game.getAnsiColor(game.getPlayers()[owner-1].getColor());
+                if (owner > 0 && owner <= static_cast<int>(players.size())) {
+                    std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
                     std::cout << ansi << "#" << "\033[0m";
-                } else std::cout << "#";
+                } else {
+                    std::cout << "#";
+                }
             } else {
                 std::cout << cell;
             }
