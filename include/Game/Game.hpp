@@ -7,6 +7,8 @@
 #include <vector>
 #include <random>
 
+class Display_Board;
+
 class Game {
 private:
     std::vector<Player> players;
