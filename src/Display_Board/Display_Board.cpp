@@ -1,4 +1,5 @@
 #include "../../include/Display_Board/Display_Board.hpp"
+#include "../../include/Game/Game.hpp"
 #include <iostream>
 #include <iomanip>
 
@@ -16,11 +17,12 @@ void Display_Board::printBottomBoarder(int cols) const {
     printTopBoarder(cols);
 }
 
-void Display_Board::display() const {
+void Display_Board::display(const Game& game) const {
     int rows = board.getRows();
     int cols = board.getCols();
     const auto& grid = board.getGrid();
     const auto& bonuses = board.getBonus();
+    const auto& ownerGrid = board.getOwnerGrid();
 
     if (rows == 0 || cols == 0) {
         std::cerr << "Error : empty grid or non-initialized." << std::endl;
@@ -32,18 +34,29 @@ void Display_Board::display() const {
 
     printTopBoarder(cols);
 
-
     for (int i = 0; i < rows; ++i) {
         std::cout << std::setw(2) << std::setfill(' ') << '|' << " ";
 
         for (int j = 0; j < cols; ++j) {
-
             auto it = bonuses.find({i, j});
+
             if (it != bonuses.end()) {
                 std::cout << it->second->getSymbol() << ' ';
             } else {
                 char cell = grid[i][j];
-                std::cout << cell << ' ';
+
+                if (cell == '#') {
+                    int ownerId = ownerGrid[i][j];
+                    if (ownerId > 0 && ownerId <= game.getPlayers().size()) {
+                        std::string color = game.getPlayers()[ownerId - 1].getColor();
+                        std::string ansi = game.getAnsiColor(color);
+                        std::cout << ansi << "#" << "\033[0m" << ' ';
+                    } else {
+                        std::cout << "#" << ' ';
+                    }
+                } else {
+                    std::cout << cell << ' ';
+                }
             }
         }
 

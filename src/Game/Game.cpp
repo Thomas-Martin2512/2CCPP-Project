@@ -27,14 +27,53 @@ void Game::setupPlayers() {
         std::cin.ignore();
     } while (numberOfPlayers < 2 || numberOfPlayers > 9);
 
+    std::vector<std::string> availableColors = {
+        "rouge", "bleu", "vert", "jaune",
+        "cyan", "magenta", "blanc", "gris", "orange"
+    };
+
     for (int i = 0; i < numberOfPlayers; ++i) {
-        Player p;
-        p.inputPlayerInfo(i + 1);
+        std::string name;
+        std::string color;
+        bool validColor = false;
+
+        std::cout << "\n=== Joueur " << (i + 1) << " ===" << std::endl;
+        std::cout << "Entrez le nom du joueur : ";
+        std::getline(std::cin, name);
+        while (!validColor) {
+            std::cout << "\nCouleurs disponibles : ";
+            for (const auto& c : availableColors) {
+                std::cout << c << " ";
+            }
+            std::cout << "\nChoisissez une couleur parmi celles disponibles : ";
+            std::getline(std::cin, color);
+
+            auto it = std::find_if(
+                availableColors.begin(),
+                availableColors.end(),
+                [&](const std::string& c) {
+                    std::string lowerColor = color;
+                    std::transform(lowerColor.begin(), lowerColor.end(), lowerColor.begin(), ::tolower);
+                    return c == lowerColor;
+                }
+            );
+
+            if (it != availableColors.end()) {
+                validColor = true;
+                availableColors.erase(it);
+            } else {
+                std::cout << "Couleur invalide. Veuillez choisir parmi celles proposées." << std::endl;
+            }
+        }
+
+        Player p(name, color);
         players.push_back(p);
+        std::cout << "Joueur " << name << " enregistré avec la couleur " << color << " !" << std::endl;
     }
 
     shufflePlayerOrder();
 }
+
 
 void Game::setupBoard() {
     int numPlayers = static_cast<int>(players.size());
@@ -86,12 +125,16 @@ void Game::displayBoard() const {
 }
 
 std::string Game::getAnsiColor(const std::string& colorName) const {
-    if (colorName == "rouge" || colorName == "red") return "\033[31m";
-    if (colorName == "bleu" || colorName == "blue") return "\033[34m";
-    if (colorName == "vert" || colorName == "green") return "\033[32m";
-    if (colorName == "jaune" || colorName == "yellow") return "\033[33m";
-    if (colorName == "cyan") return "\033[36m";
-    if (colorName == "magenta") return "\033[35m";
-    if (colorName == "blanc" || colorName == "white") return "\033[37m";
+    if (colorName == "rouge"   || colorName == "red")      return "\033[31m";
+    if (colorName == "bleu"    || colorName == "blue")     return "\033[34m";
+    if (colorName == "vert"    || colorName == "green")    return "\033[32m";
+    if (colorName == "jaune"   || colorName == "yellow")   return "\033[33m";
+    if (colorName == "cyan")                               return "\033[36m";
+    if (colorName == "magenta" || colorName == "violet")   return "\033[35m";
+    if (colorName == "blanc"   || colorName == "white")    return "\033[37m";
+    if (colorName == "gris"    || colorName == "gray")     return "\033[90m";
+    if (colorName == "orange")                             return "\033[38;5;208m";
+    if (colorName == "rose"    || colorName == "pink")     return "\033[38;5;213m";
     return "\033[0m";
 }
+

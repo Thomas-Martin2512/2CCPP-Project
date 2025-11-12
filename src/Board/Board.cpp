@@ -28,6 +28,9 @@ void Board::initGrid(int numberOfPlayers) {
     }
 
     grid = std::vector<std::vector<char>>(rows, std::vector<char>(cols, '.'));
+    ownerGrid = std::vector<std::vector<int>>(rows, std::vector<int>(cols, 0));
+
+
 }
 
 
