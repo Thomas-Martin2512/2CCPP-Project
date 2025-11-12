@@ -1,3 +1,8 @@
+/**
+* @file InitTiles.cpp
+ * @brief Implémentation de la classe InitTiles — chargement et gestion d’un ensemble de tuiles.
+ */
+
 #include "../../include/Tile/InitTiles.hpp"
 #include <fstream>
 #include <unordered_set>
@@ -5,10 +10,33 @@
 
 using nlohmann::json;
 
+/**
+ * @brief Constructeur qui charge immédiatement les tuiles depuis un fichier JSON.
+ * @param jsonPath Chemin vers le fichier JSON contenant les tuiles.
+ */
 InitTiles::InitTiles(const std::string& jsonPath) {
     loadFromFile(jsonPath);
 }
 
+/**
+ * @brief Charge les tuiles depuis un fichier JSON.
+ *
+ * Vérifie la présence d’un tableau `"tiles"` et crée un objet `Tile`
+ * pour chaque entrée valide.
+ *
+ * Exemple de structure JSON attendue :
+ * @code{.json}
+ * {
+ *   "tiles": [
+ *     { "id": "T1", "cells": [[0,0],[1,0],[0,1]] },
+ *     { "id": "T2", "cells": [[0,0],[1,0]] }
+ *   ]
+ * }
+ * @endcode
+ *
+ * @param jsonPath Chemin du fichier JSON à ouvrir.
+ * @return true si le chargement s’est effectué avec succès, false sinon.
+ */
 bool InitTiles::loadFromFile(const std::string& jsonPath) {
     std::ifstream f(jsonPath);
     if (!f) return false;
@@ -31,10 +59,20 @@ bool InitTiles::loadFromFile(const std::string& jsonPath) {
     return true;
 }
 
+
+/**
+ * @brief Retourne la liste complète des tuiles chargées.
+ * @return Référence constante vers le vecteur interne `tiles_`.
+ */
 const std::vector<Tile>& InitTiles::all() const {
     return tiles_;
 }
 
+/**
+ * @brief Recherche une tuile spécifique à partir de son identifiant.
+ * @param id Identifiant de la tuile recherchée.
+ * @return Une tuile optionnelle (`std::optional<Tile>`). Vide si l’ID n’existe pas.
+ */
 std::optional<Tile> InitTiles::byId(const std::string& id) const {
     for (const auto& tile : tiles_) {
         if (tile.getId() == id) return tile;
@@ -42,6 +80,12 @@ std::optional<Tile> InitTiles::byId(const std::string& id) const {
     return std::nullopt;
 }
 
+/**
+ * @brief Supprime les tuiles ayant la même forme géométrique.
+ *
+ * Compare chaque tuile avec les précédentes à l’aide de `Tile::shapeEquals()`.
+ * Si une forme identique est trouvée, la nouvelle tuile est ignorée.
+ */
 void InitTiles::deduplicateByShape() {
     std::vector<Tile> unique;
     for (const auto& t : tiles_) {
