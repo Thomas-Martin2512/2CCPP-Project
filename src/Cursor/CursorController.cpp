@@ -2,11 +2,17 @@
 #include "../include/Game/Game.hpp"
 #include "../include/Board/Board.hpp"
 #include "../include/Display_Board/Display_Board.hpp"
+#ifdef _WIN32
 #include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
 #include <iostream>
 #include <windows.h>
 
 class Game;
+
 
 CursorController::CursorController(Board& b, Game& g)
     : board(b), game(g), cursorX(0), cursorY(0) { }
