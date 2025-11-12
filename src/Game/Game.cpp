@@ -244,7 +244,7 @@ void Game::playTurn(Player& player) {
 
     while (true) {
         char cmd = readChoice(
-            "Actions :  p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
+            "Actions : p = place, e = exchange, r = rotate, f = flip, q = cancel : ",
             "perfq"
         );
 
