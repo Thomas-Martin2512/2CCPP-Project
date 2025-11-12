@@ -3,14 +3,14 @@
 #include "../include/Board/Board.hpp"
 #include "../include/Display_Board/Display_Board.hpp"
 #ifdef _WIN32
+// code Windows
+#include <windows.h>
 #include <conio.h>
 #else
+// code Linux / Mac
 #include <termios.h>
 #include <unistd.h>
 #endif
-#include <iostream>
-#include <windows.h>
-
 class Game;
 
 
