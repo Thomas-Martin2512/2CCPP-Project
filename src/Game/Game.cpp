@@ -84,9 +84,6 @@ void Game::setupBoard() {
     display = new Display_Board(board);
 }
 
-const std::vector<Player>& Game::getPlayers() const {
-    return players;
-}
 
 void Game::shufflePlayerOrder() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -113,7 +110,7 @@ void Game::placeStartingTiles() {
 
 void Game::displayBoard() const {
     if (display)
-        display->display();
+        display->display(*this);
 }
 
 std::string Game::getAnsiColor(const std::string& colorName) const {

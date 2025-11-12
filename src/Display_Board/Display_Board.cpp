@@ -1,4 +1,5 @@
 #include "../../include/Display_Board/Display_Board.hpp"
+#include "../../include/Game/Game.hpp"
 #include <iostream>
 #include <iomanip>
 

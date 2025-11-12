@@ -4,6 +4,8 @@
 #include <iostream>
 #include "Game/Game.hpp"
 
+class Game;
+
 class Display_Board {
     public :
         explicit Display_Board(const Board& board);
