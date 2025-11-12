@@ -45,8 +45,6 @@ target_link_libraries(project_lib PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(${PROJECT_NAME}
         src/main.cpp
-        include/Cursor/CursorController.hpp
-        src/Cursor/CursorController.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE project_lib)
 

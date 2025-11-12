@@ -28,6 +28,7 @@ public:
     ~Game();
 
     void start();
+    void placeStartingTiles();
 
     const std::vector<Player>& getPlayers() const { return players; }
     std::string getAnsiColor(const std::string& colorName) const;
@@ -51,7 +52,7 @@ private:
     static bool readYesNo(const std::string& prompt);
     static char readChoice(const std::string& prompt, const std::string& allowed); // ex "pefrq"
 
-    bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts) const;
+    bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
     void placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
 
     void displayBoard() const;

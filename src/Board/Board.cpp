@@ -70,9 +70,9 @@ const std::map<std::pair<int,int>, std::shared_ptr<Bonus>>& Board::getBonus() co
 
 
 void Board::placeTile(int x, int y, int playerId) {
-    if (x >= 0 && x < rows && y >= 0 && y < cols && grid[x][y] == '.') {
-        grid[x][y] = '#';
-        ownerGrid[x][y] = playerId;
+    if (x >= 0 && x < cols && y >= 0 && y < rows && grid[y][x] == '.') {
+        grid[y][x] = '#';
+        ownerGrid[y][x] = playerId;
     }
 }
 
