@@ -17,7 +17,7 @@ private:
 public:
     Game();
     void start();
-    const std::vector<Player>& getPlayers() const;
+    const std::vector<Player>& getPlayers() const { return players; }
     std::string getAnsiColor(const std::string& colorName) const;
 
 private:
