@@ -1,80 +1,89 @@
 #include "../../include/Game/Game.hpp"
-#include "../include/Cursor/CursorController.hpp"
-#include "../include/Display_Board/Display_Board.hpp"
+#include "../../include/Render/Renderer.hpp"
 #include <iostream>
 #include <algorithm>
-#include <ctime>
-#include <cstdlib>
+#include <limits>
 
-Game::Game() : board(), display(nullptr), currentRound(1) {}
+Game::Game()
+    : board(),
+      display(nullptr),
+      queue(true),
+      currentRound(1),
+      currentPlayerIndex(0),
+      gameOver(false) {}
+
+Game::~Game() {
+    delete display;
+}
 
 void Game::start() {
-    std::cout << "=== DÉBUT DE LA PARTIE ===" << std::endl;
+    std::cout << " THE GAME IS STARTING \n";
 
     setupPlayers();
     setupBoard();
-    placeStartingTiles();
+    setupTiles();
 
-    std::cout << "\nTous les joueurs ont placé leur tuile de départ !" << std::endl;
     displayBoard();
+    runRounds(9);
 
-    std::cout << "\n--- Début des 9 manches ---" << std::endl;
+    std::cout << "\n THE GAME IS OVER \n";
 }
 
+/* ---------------------- SETUP ---------------------- */
+
 void Game::setupPlayers() {
-    int numberOfPlayers;
-    do {
-        std::cout << "Entrez le nombre de joueurs (2 à 9) : ";
-        std::cin >> numberOfPlayers;
-        std::cin.ignore();
-    } while (numberOfPlayers < 2 || numberOfPlayers > 9);
+    int numberOfPlayers = readIntInRange("How many players will play (1 to 9) ? : ", 2, 9);
 
     std::vector<std::string> availableColors = {
-        "rouge", "bleu", "vert", "jaune",
-        "cyan", "magenta", "blanc", "gris", "orange"
+        "red", "blue", "green", "yellow",
+        "cyan", "violet", "white", "gray", "orange"
     };
+
+    players.clear();
+    players.reserve(numberOfPlayers);
 
     for (int i = 0; i < numberOfPlayers; ++i) {
         std::string name;
         std::string color;
         bool validColor = false;
 
-        std::cout << "\n=== Joueur " << (i + 1) << " ===" << std::endl;
-        std::cout << "Entrez le nom du joueur : ";
+        std::cout << "\n Player : " << (i + 1) << "\n";
+        std::cout << "Choose a name : ";
         std::getline(std::cin, name);
+        if (name.empty()) { --i; continue; }
 
         while (!validColor) {
-            std::cout << "\nCouleurs disponibles : ";
-            for (const auto& c : availableColors) {
-                std::cout << c << " ";
-            }
-            std::cout << "\nChoisissez une couleur parmi celles disponibles : ";
+            std::cout << "Available colors : ";
+            for (const auto& c : availableColors) std::cout << c << " ";
+            std::cout << "\nChoose a color among those available : ";
             std::getline(std::cin, color);
+            std::string lc = color;
+            std::transform(lc.begin(), lc.end(), lc.begin(), ::tolower);
 
-            auto it = std::find_if(
-                availableColors.begin(),
-                availableColors.end(),
-                [&](const std::string& c) {
-                    std::string lowerColor = color;
-                    std::transform(lowerColor.begin(), lowerColor.end(), lowerColor.begin(), ::tolower);
-                    return c == lowerColor;
-                }
-            );
-
+            auto it = std::find(availableColors.begin(), availableColors.end(), lc);
             if (it != availableColors.end()) {
                 validColor = true;
                 availableColors.erase(it);
+                color = lc;
             } else {
-                std::cout << "Couleur invalide. Veuillez choisir parmi celles proposées." << std::endl;
+                std::cout << "Invalid color. Try again.\n";
             }
         }
 
-        Player p(name, color);
-        players.push_back(p);
-        std::cout << "Joueur " << name << " enregistré avec la couleur " << color << " !" << std::endl;
+        players.emplace_back(name, color);
+        std::cout << "Player : " << name << " saved along with its color : " << color << " !\n";
     }
 
-    shufflePlayerOrder();
+    std::random_device rd; std::mt19937 g(rd());
+    std::shuffle(players.begin(), players.end(), g);
+    announceOrder();
+}
+
+void Game::announceOrder() const {
+    std::cout << "\nPlayer positioning :\n";
+    for (size_t i = 0; i < players.size(); ++i) {
+        std::cout << i + 1 << ". " << players[i].getName() << "\n";
+    }
 }
 
 void Game::setupBoard() {
@@ -84,34 +93,206 @@ void Game::setupBoard() {
     display = new Display_Board(board);
 }
 
+void Game::setupTiles() {
+    if (!tileSet.loadFromFile("Shapes.json")) {
+        std::cerr << "Error : cannot load Shapes.kson\n";
+        std::exit(1);
+    }
+    queue.initFrom(tileSet, /*shuffle=*/true);
+    std::cout << "Loaded Tiles : " << tileSet.all().size() << "\n";
 
-void Game::shufflePlayerOrder() {
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(players.begin(), players.end(), g);
-    std::cout << "\nOrdre de jeu aléatoire :" << std::endl;
-    for (size_t i = 0; i < players.size(); ++i) {
-        std::cout << i + 1 << ". " << players[i].getName() << std::endl;
+    // Affiche les 5 premières IDs pour debug/repère
+    auto ids = queue.nextTileIds(5);
+    std::cout << "Next 5 tiles-id: ";
+    for (auto& id : ids) std::cout << id << " ";
+    std::cout << "\n";
+}
+
+/* ---------------------- BOUCLE DE JEU ---------------------- */
+
+void Game::runRounds(int maxRounds) {
+    for (currentRound = 1; currentRound <= maxRounds && !gameOver; ++currentRound) {
+        std::cout << "\n Round " << currentRound << " \n";
+        for (currentPlayerIndex = 0;
+             currentPlayerIndex < static_cast<int>(players.size()) && !gameOver;
+             ++currentPlayerIndex) {
+            playTurn(players[currentPlayerIndex]);
+        }
+        endRound();
     }
 }
 
-void Game::placeStartingTiles() {
-    std::cout << "\n=== Placement des tuiles de départ ===" << std::endl;
+void Game::playTurn(Player& player) {
+    std::cout << "\n" << player.getName() << "'s turn \n";
 
-    CursorController cursor(board, *this);
+    Tile current = queue.draw();
+    showQueueWithCurrent(current);
 
-    for (auto& player : players) {
-        std::cout << player.getName() << ", c'est votre tour !" << std::endl;
-        cursor.moveAndPlaceTile(player.getID());
+    // Boucle d’actions sur la tuile avant placement
+    // Actions autorisées:
+    //   p = placer
+    //   e = échanger contre fenêtre [0..4]
+    //   r = rotate (90° antihoraire)
+    //   f = flip
+    //   q = abandon de la pose (rare, mais on le gère)
+    while (true) {
+        char cmd = readChoice(
+            "Actions [p=place, e=exchange, r=rotate, f=flip, q=cancel] : ",
+            "perfq"
+        );
 
-        display->display(*this);
+        if (cmd == 'r') {
+            current.rotate();
+            showQueueWithCurrent(current);
+        } else if (cmd == 'f') {
+            current.flip();
+            showQueueWithCurrent(current);
+        } else if (cmd == 'e') {
+            if (promptExchange(current)) {
+                showQueueWithCurrent(current);
+            }
+        } else if (cmd == 'p') {
+            if (promptPlace(current, player.getID())) {
+                displayBoard();
+                break;
+            } else {
+                std::cout << "Invalid placement or cancelled.\n";
+                showQueueWithCurrent(current);
+            }
+        } else if (cmd == 'q') {
+            std::cout << "Cancelled move. Tile lost for this round.\n";
+            break;
+        }
     }
 }
 
+void Game::endRound() {
+    if (isGameOver()) {
+        gameOver = true;
+    }
+}
+
+bool Game::isGameOver() const {
+    return false;
+}
+
+/* ---------------------- ACTIONS TUILE ---------------------- */
+
+void Game::showQueueWithCurrent(const Tile& current) const {
+    std::cout << "\n";
+    queue.display(std::cout, current, 5);
+}
+
+void Game::promptTransform(Tile& current) const {
+    // Non utilisée directement (on a les actions r/f), mais dispo si tu veux proposer un menu guidé.
+}
+
+bool Game::promptExchange(Tile& current) {
+    auto ids = queue.nextTileIds(5);
+    std::cout << "Fenetre [0..4] IDs: ";
+    for (auto& id : ids) std::cout << id << " ";
+    std::cout << "\n";
+
+    int index = readIntInRange("Choose the tile you want to exchange with your current one (1 to 5) : ", 1, 5);
+
+    auto newTile = queue.exchangeWithWindow(static_cast<size_t>(index-1), current.getId());
+    if (!newTile) {
+        std::cout << "Cannot exchange tile (invalid index).\n";
+        return false;
+    }
+    current = *newTile;
+    return true;
+}
+
+bool Game::promptPlace(Tile& current, int playerId) {
+    bool doFlip = readYesNo("Flip the tile before placing it ? (y/n) : ");
+    int rot = readIntInRange("Number of 90° rotations (0 to 3) : ", 0, 3);
+
+    int x = readIntInRange("X's origin (0 to cols-1) : ", 0, board.getCols()-1);
+    int y = readIntInRange("Y's origin (0 to rows-1) : ", 0, board.getRows()-1);
+
+    auto pts = current.footprint(x, y, rot, doFlip);
+
+    if (!canPlaceFootprint(pts)) {
+        std::cout << "Move forbidden (Colliding tile or out of the board).\n";
+        return false;
+    }
+
+    // Place
+    placeFootprint(pts, playerId);
+    return true;
+}
+
+/* ---------------------- I/O ROBUSTES ---------------------- */
+
+int Game::readIntInRange(const std::string& prompt, int minVal, int maxVal) {
+    while (true) {
+        std::cout << prompt;
+        int v;
+        if (std::cin >> v) {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            if (v >= minVal && v <= maxVal) return v;
+        } else {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        std::cout << "Invalid input. Try again (" << minVal << ".." << maxVal << ").\n";
+    }
+}
+
+bool Game::readYesNo(const std::string& prompt) {
+    while (true) {
+        std::cout << prompt;
+        std::string s;
+        std::getline(std::cin, s);
+        if (s.size()) {
+            char c = static_cast<char>(::tolower(s[0]));
+            if (c=='y' || c=='o') return true;
+            if (c=='n') return false;
+        }
+        std::cout << "Entree invalide. Tapez y/oui ou n/non.\n";
+    }
+}
+
+char Game::readChoice(const std::string& prompt, const std::string& allowed) {
+    while (true) {
+        std::cout << prompt;
+        std::string s;
+        std::getline(std::cin, s);
+        if (!s.empty()) {
+            char c = static_cast<char>(::tolower(s[0]));
+            if (allowed.find(c) != std::string::npos) return c;
+        }
+        std::cout << "Entree invalide. Choix acceptes: ";
+        for (char a : allowed) std::cout << a << " ";
+        std::cout << "\n";
+    }
+}
+
+/* ---------------------- AIDES PLACEMENT ---------------------- */
+
+bool Game::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts) const {
+    const auto& grid = board.getGrid();
+    int rows = board.getRows();
+    int cols = board.getCols();
+    for (auto [x,y] : pts) {
+        if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
+        if (grid[y][x] != '.') return false;
+    }
+    return true;
+}
+
+void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) {
+    for (auto [x,y] : pts) {
+        board.placeTile(x, y, playerId); // utilise ta méthode existante (une case à la fois)
+    }
+    std::cout << "Tuile placee (" << pts.size() << " cases).\n";
+}
+
+/* ---------------------- AFFICHAGE ---------------------- */
 
 void Game::displayBoard() const {
-    if (display)
-        display->display(*this);
+    if (display) display->display(*this);
 }
 
 std::string Game::getAnsiColor(const std::string& colorName) const {
