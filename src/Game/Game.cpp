@@ -106,7 +106,7 @@ void Game::placeStartingTiles() {
         std::cout << player.getName() << ", c'est votre tour !" << std::endl;
         cursor.moveAndPlaceTile(player.getID());
 
-        display.display(*this);
+        display->display(*this);
     }
 }
 
