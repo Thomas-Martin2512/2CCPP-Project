@@ -78,6 +78,7 @@ void Game::start() {
 
     displayBoard();
     runRounds(9);
+    finalSingleCellPhase();
     finishAndScore();
 
     std::cout << "\n THE GAME IS OVER \n";
@@ -154,7 +155,7 @@ void Game::setupTiles() {
         std::exit(1);
     }
     queue.initFrom(tileSet, /*shuffle=*/true);
-    std::cout << "Loaded Tiles : " << tileSet.all().size() << "\n";
+    std::cout << "\n";
 
     auto ids = queue.nextTileIds(5);
     std::cout << "\n";
@@ -162,34 +163,15 @@ void Game::setupTiles() {
 
 void Game::placeStartingTiles() {
     for (auto& player : players) {
-        bool valid = false;
-        while (!valid) {
+        bool placed = false;
+        while (!placed) {
             displayBoard();
             std::cout << player.getName() << " (" << player.getColor()
-                      << "), Enter your starting tile (Column Letter + Row Number like 'A0'): ";
-            std::string input;
-            std::getline(std::cin, input);
-            if (input.empty()) {
-                std::cout << "Empty input. Try again.\n";
-                continue;
-            }
+                      << "), enter your starting tile position (e.g., A0):\n";
 
-            std::string letters, digits;
-            for (char c : input) {
-                if (std::isalpha(static_cast<unsigned char>(c))) letters += c;
-                else if (std::isdigit(static_cast<unsigned char>(c))) digits += c;
-            }
-
-            if (letters.empty() || digits.empty()) {
-                std::cout << "Invalid format. Example: A0 or B12.\n";
-                continue;
-            }
-
-            int col = lettersToCol(letters);
-            int row = std::stoi(digits);
-
-            if (row < 0 || row >= board.getRows() || col < 0 || col >= board.getCols()) {
-                std::cout << "Invalid coordinates. Try again.\n";
+            int col=-1, row=-1;
+            if (!readColRow("> ", board.getCols(), board.getRows(), col, row)) {
+                std::cout << "Invalid input. Try again.\n";
                 continue;
             }
 
@@ -198,17 +180,15 @@ void Game::placeStartingTiles() {
                 continue;
             }
 
-            auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
-            grid[row][col] = '#';
-
+            auto& grid  = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
             auto& owner = const_cast<std::vector<std::vector<int>>&>(board.getOwnerGrid());
+            grid[row][col]  = '#';
             owner[row][col] = player.getID();
 
-            std::cout << "Tile placed in " << letters << row << "\n\n";
-            valid = true;
+            std::cout << "Tile placed in " << colToLetters(col) << row << "\n\n";
+            placed = true;
         }
     }
-
     std::cout << "All starting tiles have been placed ! The Game may begin.\n";
     displayBoard();
 }
@@ -310,27 +290,16 @@ bool Game::promptExchange(Tile& current) {
 }
 
 bool Game::promptPlace(Tile& current, int playerId) {
-    int x = -1;
-    while (true) {
-        char maxColChar = 'A' + std::min(board.getCols(), 26) - 1;
-        std::cout << "X origin (A-";
-        if (board.getCols() <= 26) std::cout << maxColChar;
-        else std::cout << colToLetters(board.getCols() - 1);
-        std::cout << ") : ";
-
-        std::string s; std::getline(std::cin, s);
-        x = lettersToCol(s);
-        if (x >= 0 && x < board.getCols()) break;
-
-        std::cout << "Invalid column. Please enter letters between A and "
-                  << colToLetters(board.getCols() - 1) << ".\n";
+    int x=-1, y=-1;
+    const std::string prompt = "Origin (example A0, B12, etc.): ";
+    if (!readColRow(prompt, board.getCols(), board.getRows(), x, y)) {
+        std::cout << "Cancelled or invalid.\n";
+        return false;
     }
 
-    int y = readIntInRange("Y origin (0 to rows-1) : ", 0, board.getRows() - 1);
-
-    auto pts = current.footprint(x, y, 0, false);
+    auto pts = current.footprint(x, y, /*rot=*/0, /*flip=*/false);
     if (!canPlaceFootprint(pts, playerId)) {
-        std::cout << "Invalid position (collision or out of bounds).\n";
+        std::cout << "Invalid position (collision, enemy adjacency, or not touching your territory).\n";
         return false;
     }
     placeFootprint(pts, playerId);
@@ -526,6 +495,46 @@ void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int player
 }
 
 /* ---------------------- FIN DE PARTIE ---------------------- */
+
+void Game::finalSingleCellPhase() {
+    std::cout << "\n FINAL BONUS PHASE: place a 1x1 cell \n";
+    for (auto& p : players) {
+        displayBoard();
+        std::cout << p.getName() << " (" << p.getColor()
+                  << "), you may place ONE 1x1 cell.\n";
+
+        if (!readYesNo("Do you want to place it? (y/n): ")) {
+            std::cout << "Skipped.\n";
+            continue;
+        }
+
+        if (promptPlaceSingleCell(p.getID())) {
+            displayBoard();
+        } else {
+            std::cout << "No valid position. Skipped.\n";
+        }
+    }
+}
+
+bool Game::promptPlaceSingleCell(int playerId) {
+    int x, y;
+    if (!readColRow(
+            "Enter origin (e.g. A0, C12, AA7): ",
+            board.getCols(), board.getRows(),
+            x, y)) {
+            }
+
+    std::vector<std::pair<int,int>> pts = { {x, y} };
+
+    if (!canPlaceFootprint(pts, playerId)) {
+        std::cout << "Invalid position for 1x1 (collision, enemy-adjacent, or no contact with your area).\n";
+        return false;
+    }
+
+    placeFootprint(pts, playerId);
+    std::cout << "1x1 placed at " << colToLetters(x) << y << ".\n";
+    return true;
+}
 
 void Game::finishAndScore() {
     auto scores = computeScores();
