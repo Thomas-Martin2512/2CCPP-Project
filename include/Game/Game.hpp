@@ -10,7 +10,7 @@
 #include <random>
 #include <string>
 
-
+class Display_Board;
 
 class Game {
 private:
