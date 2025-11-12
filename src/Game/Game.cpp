@@ -396,7 +396,8 @@ bool Game::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int pla
 
 void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) {
     for (auto [x,y] : pts) {
-        board.placeTile(x, y, playerId); // utilise ta méthode existante (une case à la fois)
+        board.placeTile(x, y, playerId);
+        board.checkBonusCapture(x, y, playerId);
     }
     std::cout << "Tuile placee (" << pts.size() << " cases).\n";
 }
