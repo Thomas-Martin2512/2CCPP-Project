@@ -23,11 +23,12 @@ void Board::initGrid(int numberOfPlayers) {
         rows = 30;
         cols = 30;
     } else {
-        std::cerr << "Invalid player's number !" << std::endl;
+        std::cerr << "Nombre de joueurs invalide !" << std::endl;
         rows = cols = 0;
     }
 
     grid = std::vector<std::vector<char>>(rows, std::vector<char>(cols, '.'));
+    ownerGrid = std::vector<std::vector<int>>(rows, std::vector<int>(cols, 0));
 }
 
 
@@ -66,6 +67,14 @@ const std::map<std::pair<int,int>, std::shared_ptr<Bonus>>& Board::getBonus() co
     return bonuses;
 }
 
+
+
+void Board::placeTile(int x, int y, int playerId) {
+    if (x >= 0 && x < rows && y >= 0 && y < cols && grid[x][y] == '.') {
+        grid[x][y] = '#';
+        ownerGrid[x][y] = playerId;
+    }
+}
 
 void Board::displayGrid() const {
     for (int i = 0; i < rows; ++i) {

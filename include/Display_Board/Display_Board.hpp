@@ -2,12 +2,15 @@
 #define DISPLAY_BOARD_HPP_INCLUDED
 #include "../Board/Board.hpp"
 #include <iostream>
+#include "Game/Game.hpp"
+
+class Game;
 
 class Display_Board {
     public :
         explicit Display_Board(const Board& board);
 
-        void display() const;
+        void display(const Game& game) const;
 
     private:
         const Board& board;
