@@ -143,6 +143,7 @@ void Game::announceOrder() const {
 void Game::setupBoard() {
     int numPlayers = static_cast<int>(players.size());
     board = Board(numPlayers);
+    board.setGame(this);
     board.placeBonus(numPlayers);
     display = new Display_Board(board);
 }
@@ -210,6 +211,14 @@ void Game::placeStartingTiles() {
 
     std::cout << "All starting tiles have been placed ! The Game may begin.\n";
     displayBoard();
+}
+
+Player& Game::getPlayerById(int id) {
+    for (auto& player : players) {
+        if (player.getID() == id)
+            return player;
+    }
+    throw std::runtime_error("Player ID not found");
 }
 
 /* ---------------------- BOUCLE DE JEU ---------------------- */

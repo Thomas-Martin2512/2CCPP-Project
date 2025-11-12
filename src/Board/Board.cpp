@@ -7,7 +7,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-
+#include "../../include/Player/Player.hpp"
+#include "../../include/Bonus/Bonus.hpp"
+#include "../../include/Game/Game.hpp"
 
 Board::Board() : rows(0), cols(0) {}
 
@@ -75,6 +77,58 @@ void Board::placeTile(int x, int y, int playerId) {
         ownerGrid[y][x] = playerId;
     }
 }
+
+void Board::checkBonusCapture(int x, int y, int playerId) {
+    static const std::vector<std::pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+
+    std::vector<std::pair<int,int>> capturedKeys;
+
+    for (auto& [pos, bonusPtr] : bonuses) {
+        int bx = pos.first;
+        int by = pos.second;
+
+        bool surrounded = true;
+        for (auto [dx, dy] : directions) {
+            int nx = bx + dx;
+            int ny = by + dy;
+
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) {
+                surrounded = false;
+                break;
+            }
+
+            if (ownerGrid[ny][nx] != playerId) {
+                surrounded = false;
+                break;
+            }
+        }
+
+        if (surrounded) {
+            ownerGrid[by][bx] = playerId;
+            std::cout << "Bonus captured by player " << playerId
+                      << " : " << bonusPtr->getName() << std::endl;
+
+            if (bonusPtr->getSymbol() == "E" && gameRef) {
+                Player& player = gameRef->getPlayerById(playerId);
+                player.addExchangeCoupon();
+                std::cout << "Player " << player.getName()
+                          << " receives an additional exchange voucher! ("
+                          << player.getExchangeCoupons() << " in total)\n";
+            }
+
+            capturedKeys.push_back(pos);
+        }
+    }
+
+    // Supprimer les bonus capturés
+    for (auto& key : capturedKeys) {
+        bonuses.erase(key);
+    }
+}
+
+
 
 void Board::displayGrid() const {
     for (int i = 0; i < rows; ++i) {
