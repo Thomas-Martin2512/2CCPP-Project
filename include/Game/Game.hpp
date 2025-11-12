@@ -17,6 +17,8 @@ private:
 public:
     Game();
     void start();
+    const std::vector<Player>& getPlayers() const;
+    std::string getAnsiColor(const std::string& colorName) const;
 
 private:
     void setupPlayers();
@@ -24,7 +26,7 @@ private:
     void placeStartingTiles();
     void displayBoard() const;
     void shufflePlayerOrder();
-    std::string getAnsiColor(const std::string& colorName) const;
+
 };
 
 #endif // GAME_HPP_INCLUDED

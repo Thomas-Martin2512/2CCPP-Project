@@ -1,4 +1,6 @@
 #include "../../include/Game/Game.hpp"
+#include "../include/Cursor/CursorController.hpp"
+#include "../include/Display_Board/Display_Board.hpp"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
@@ -82,6 +84,10 @@ void Game::setupBoard() {
     display = new Display_Board(board);
 }
 
+const std::vector<Player>& Game::getPlayers() const {
+    return players;
+}
+
 void Game::shufflePlayerOrder() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     std::random_shuffle(players.begin(), players.end());
@@ -93,31 +99,17 @@ void Game::shufflePlayerOrder() {
 
 void Game::placeStartingTiles() {
     std::cout << "\n=== Placement des tuiles de départ ===" << std::endl;
+
+    CursorController cursor(board, *this);
+
     for (auto& player : players) {
-        int x, y;
-        bool valid = false;
+        std::cout << player.getName() << ", c'est votre tour !" << std::endl;
+        cursor.moveAndPlaceTile(player.getID());
 
-        while (!valid) {
-            std::cout << player.getName() << ", entrez la position de votre tuile de départ (x y) : ";
-            std::cin >> x >> y;
-
-            if (x >= 0 && x < board.getRows() && y >= 0 && y < board.getCols()) {
-                if (board.getGrid()[x][y] == '.') {
-                    valid = true;
-                    auto& grid = const_cast<std::vector<std::vector<char>>&>(board.getGrid());
-                    grid[x][y] = '#';
-                    std::cout << "Tuile placée en (" << x << ", " << y << ")" << std::endl;
-                } else {
-                    std::cout << "Cette case est déjà occupée, choisis une autre position." << std::endl;
-                }
-            } else {
-                std::cout << "Coordonnées invalides." << std::endl;
-            }
-        }
-
-        displayBoard();
+        display.display(*this);
     }
 }
+
 
 void Game::displayBoard() const {
     if (display)
