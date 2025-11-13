@@ -60,6 +60,7 @@ private:
     bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
     void placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
 
+    bool useRockBonus(Player& player);
     void displayBoard() const;
     void announceOrder() const;
 

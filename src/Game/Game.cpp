@@ -230,6 +230,23 @@ void Game::playTurn(Player& player) {
     std::cout << "Stealth bonus : "
               << (player.hasStealthBonus() ? "available" : "none") << "\n";
 
+    if (player.hasRockBonus()) {
+        std::cout << "\n*** ROCK BONUS ***\n";
+        std::cout << player.getName()
+                  << ", you MUST place a 1x1 stone on an empty cell.\n";
+
+        bool placed = useRockBonus(player);
+
+        if (placed) {
+            std::cout << "Rock bonus used successfully.\n";
+            displayBoard();
+        } else {
+            std::cout << "Rock bonus could not be used. Bonus lost.\n";
+        }
+
+        player.setRockBonusAvailable(false);  // ★ toujours consommé
+    }
+
     Tile current = queue.draw();
     showQueueWithCurrent(current);
 
@@ -315,6 +332,33 @@ bool Game::promptPlace(Tile& current, int playerId) {
     }
     placeFootprint(pts, playerId);
     return true;
+}
+
+bool Game::useRockBonus(Player& player) {
+    std::cout << player.getName()
+              << " can place a 1x1 stone 'X' on any empty cell.\n";
+
+    while (true) {
+        int x, y;
+        if (!readColRow("Stone position (e.g. A0, C12, AA7): ",
+                        board.getCols(), board.getRows(), x, y)) {
+            continue;
+                        }
+
+        const auto& grid = board.getGrid();
+        if (grid[y][x] != '.') {
+            std::cout << "Cell is not empty. Try again.\n";
+            continue;
+        }
+
+        if (!board.placeStone(x, y)) {
+            std::cout << "Cannot place stone here. Try again.\n";
+            continue;
+        }
+
+        std::cout << "Stone placed at " << colToLetters(x) << y << ".\n";
+        return true;
+    }
 }
 
 /* ---------------------- I/O ROBUSTES ---------------------- */
