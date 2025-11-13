@@ -8,8 +8,8 @@ Un système avancé de grille, de capture de bonus et de scoring final permet de
 ---
 
 ## 👥 **Collaborateurs**
-- **Thomas-Martin2512**  
-- **Ay0ko**
+- **Thomas-Martin2512 | email: thomas.martin@supinfo.com**  
+- **Ay0ko | email: simon.mennechet@supinfo.com**
 
 ---
 
@@ -30,13 +30,12 @@ Cette documentation inclut :
 ### 📚 Documentation utilisateur
 Un PDF dédié à l’utilisation du jeu est disponible ici :
 
-➡️ **docs/user/manuel_utilisateur.pdf**  
-*(Ce fichier est à ajouter par l’équipe.)*
+➡️ **User Documentation/Documentation Utilisateur 2CCPP.pdf**
 
 Cette documentation explique :
 - Comment lancer le jeu
 - Les règles complètes
-- Les bonus (Exchange, Rock, Stealth)
+- Les bonus (Exchange, Rock)
 - Le système de capture
 - Le déroulement d’un tour
 - Le scoring final
