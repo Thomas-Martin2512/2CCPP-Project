@@ -6,6 +6,12 @@
 #include <algorithm>
 #include <cctype>
 
+
+/**
+ * @brief Convertit un index numérique en étiquette de colonne type Excel (A, B, ..., Z, AA, AB, ...).
+ *
+ * Permet un affichage jusqu’à 26, 52, 78 colonnes, etc.
+ */
 static std::string colToLetters(int index) {
     std::string result;
     while (index >= 0) {
@@ -18,6 +24,9 @@ static std::string colToLetters(int index) {
 
 Display_Board::Display_Board(const Board &board) : board(board) {}
 
+/**
+ * @brief Affiche une bordure horizontale en haut du plateau.
+ */
 void Display_Board::printTopBoarder(int cols) const {
     std::cout << "  +";
     for (int j = 0; j < cols; ++j)
@@ -25,11 +34,26 @@ void Display_Board::printTopBoarder(int cols) const {
     std::cout << "+" << std::endl;
 }
 
-
+/**
+ * @brief Affiche la bordure inférieure du plateau.
+ */
 void Display_Board::printBottomBoarder(int cols) const {
     printTopBoarder(cols);
 }
 
+/**
+ * @brief Affiche la grille complète avec :
+ *  - couleurs des joueurs,
+ *  - cases bonus,
+ *  - cases vides,
+ *  - bordures ASCII,
+ *  - index de colonnes & lignes.
+ *
+ * Prend en compte les informations du Game pour :
+ *  - retrouver le joueur propriétaire d’une case,
+ *  - appliquer la bonne couleur ANSI,
+ *  - coloriser les bonus capturés.
+ */
 void Display_Board::display(const Game& game) const {
     const auto& grid = board.getGrid();
     const auto& ownerGrid = board.getOwnerGrid();
