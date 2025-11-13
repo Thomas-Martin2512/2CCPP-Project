@@ -5,6 +5,12 @@
 
 namespace render {
 
+    /**
+    * @brief Détermine la bounding-box minimale contenant toutes les cellules.
+    *
+    * @param cells Liste des coordonnées (x, y) de la tuile.
+    * @return (width, height) correspondant à la zone minimale englobante.
+    */
     static std::pair<int,int> box(const std::vector<std::pair<int,int>>& cells) {
         if (cells.empty()) return {0,0};
         int maxX = 0, maxY = 0;
@@ -12,6 +18,9 @@ namespace render {
         return {maxX+1, maxY+1};
     }
 
+    /**
+    * @brief Génère une représentation ASCII compacte d’une tuile.
+    */
     std::string drawTile(const Tile& t, char fill) {
         const auto& cells = t.getCells();
         auto [w,h] = box(cells);
@@ -27,6 +36,10 @@ namespace render {
         return out.str();
     }
 
+
+    /**
+     * @brief Génère un affichage présentant une tuile appliquée sur une grille virtuelle.
+     */
     std::string drawFootprint(const Tile& t,
                               int originX, int originY,
                               int rotations, bool flipped,
