@@ -244,7 +244,7 @@ void Game::playTurn(Player& player) {
             std::cout << "Rock bonus could not be used. Bonus lost.\n";
         }
 
-        player.setRockBonusAvailable(false);  // ★ toujours consommé
+        player.setRockBonusAvailable(false);
     }
 
     Tile current = queue.draw();

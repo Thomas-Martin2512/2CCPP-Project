@@ -186,7 +186,7 @@ std::vector<std::string> TileQueue::hstack_(const std::vector<std::vector<std::s
  */
 void TileQueue::display(std::ostream& os, const Tile& current, std::size_t nextCount) const {
     os << "Current Tile :\n\n";
-    auto cur = asciiTile_(current, '\xDB'); // █
+    auto cur = asciiTile_(current, '\xDB');
     for (auto& line : cur)
         os << "    " << line << "\n";
 
