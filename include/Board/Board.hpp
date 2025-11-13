@@ -24,6 +24,7 @@ class Board {
         void placeBonus(int numberOfPlayers);
         void displayGrid() const;
         void placeTile(int x, int y, int playerId);
+        bool placeStone(int x, int y);
         void checkBonusCapture(int playerId, Game& game);
 
         int getRows() const;

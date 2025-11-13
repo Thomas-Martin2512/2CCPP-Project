@@ -200,6 +200,14 @@ Player& Game::getPlayerById(int id) {
     throw std::runtime_error("Player ID not found");
 }
 
+const Player& Game::getPlayerById(int id) const {
+    for (const auto& player : players) {
+        if (player.getID() == id)
+            return player;
+    }
+    throw std::runtime_error("Player ID not found");
+}
+
 /* ---------------------- BOUCLE DE JEU ---------------------- */
 
 void Game::runRounds(int maxRounds) {
@@ -215,7 +223,7 @@ void Game::runRounds(int maxRounds) {
 }
 
 void Game::playTurn(Player& player) {
-    std::cout << "\n Turn of " << player.getName() << " ===\n";
+    std::cout << "\n Turn of " << player.getName() << "\n";
     std::cout << "Exchange-ticket available : " << player.getExchangeCoupons() << "\n";
     std::cout << "Rock bonus : "
               << (player.hasRockBonus() ? "available" : "none") << "\n";
@@ -600,13 +608,13 @@ void Game::printScores(const std::vector<FinalScore>& scores) const {
               });
 
     for (const auto& s : sorted) {
-        const auto& player = players[s.playerId - 1];
+        const auto& player = getPlayerById(s.playerId);
         std::cout << player.getName() << " (" << player.getColor() << ")"
                   << " Biggest square : " << s.maxSquare
                   << ", Total cells : " << s.cellCount << "\n";
     }
 
-    const auto& winner = players[sorted.front().playerId - 1];
+    const auto& winner = getPlayerById(sorted.front().playerId);
     std::cout << "\n The Winner is : " << winner.getName()
               << " (" << winner.getColor() << ")!\n";
 }

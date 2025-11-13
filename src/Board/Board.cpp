@@ -78,6 +78,15 @@ void Board::placeTile(int x, int y, int playerId) {
     }
 }
 
+bool Board::placeStone(int x, int y) {
+    if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
+    if (grid[y][x] != '.') return false;
+
+    grid[y][x] = 'X';
+    ownerGrid[y][x] = 0;
+    return true;
+}
+
 int Board::letterToCol(const std::string& letter) {
     if (letter.empty()) return -1;
     char c = toupper(letter[0]);
@@ -108,7 +117,9 @@ void Board::checkBonusCapture(int playerId, Game& game) {
         }
 
         if (surrounded) {
+            grid[by][bx]      = '#';
             ownerGrid[by][bx] = playerId;
+
             std::cout << "Bonus captured by player " << playerId
                       << " : " << bonusPtr->getName() << std::endl;
 
@@ -116,37 +127,13 @@ void Board::checkBonusCapture(int playerId, Game& game) {
 
             if (bonusPtr->getSymbol() == "E") {
                 player.addExchangeCoupon();
-                std::cout << "Ticket d'échange +1. Total : "
+                std::cout << "Exchange-ticket +1. Total : "
                           << player.getExchangeCoupons() << "\n";
             }
 
             if (bonusPtr->getSymbol() == "R") {
                 player.setRockBonusAvailable(true);
-                std::cout << "Rock bonus : available\n";
-
-                std::cout << "Player " << playerId
-                          << " can now place a stone (1x1 'X') on an empty cell.\n";
-
-                int px, py;
-                bool valid = false;
-                while (!valid) {
-                    std::string col;
-                    std::cout << "Enter stone position (column letter, row number) : ";
-                    std::cin >> col >> py;
-                    px = letterToCol(col);
-                    py--;
-
-                    if (px >= 0 && px < cols && py >= 0 && py < rows && grid[py][px] == '.') {
-                        grid[py][px] = 'X';
-                        ownerGrid[py][px] = 0;
-                        valid = true;
-                        std::cout << "Stone placed at " << col << py+1 << "\n";
-                    } else {
-                        std::cout << "Invalid or occupied cell, try again.\n";
-                    }
-                }
-
-                player.setRockBonusAvailable(false);
+                std::cout << "Rock bonus : available (you can place a 1x1 stone on an empty cell).\n";
             }
 
             if (bonusPtr->getSymbol() == "S") {
@@ -182,7 +169,7 @@ const std::vector<std::vector<char>>& Board::getGrid() const { return grid; }
 bool Board::canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int /*playerId*/) const {
     for (auto [x,y] : pts) {
         if (x < 0 || x >= cols || y < 0 || y >= rows) return false;
-        if (grid[y][x] != '.') return false;  // occupé
+        if (grid[y][x] != '.') return false;
     }
     return true;
 }
