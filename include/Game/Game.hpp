@@ -29,9 +29,10 @@ public:
 
     void start();
     void placeStartingTiles();
-    Player& getPlayerById(int id);
     const std::vector<Player>& getPlayers() const { return players; }
     std::string getAnsiColor(const std::string& colorName) const;
+    Player& getPlayerById(int id);
+    const Player& getPlayerById(int id) const;
 
 private:
     void setupPlayers();
@@ -59,6 +60,7 @@ private:
     bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
     void placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
 
+    bool useRockBonus(Player& player);
     void displayBoard() const;
     void announceOrder() const;
 

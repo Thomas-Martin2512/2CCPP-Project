@@ -63,15 +63,17 @@ void Display_Board::display(const Game& game) const {
 
             auto it = bonuses.find({j, i});
             if (it != bonuses.end()) {
-                if (owner > 0 && owner <= static_cast<int>(players.size())) {
-                    std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
+                if (owner > 0) {
+                    const Player& p = game.getPlayerById(owner);
+                    std::string ansi = game.getAnsiColor(p.getColor());
                     std::cout << ansi << it->second->getSymbol() << "\033[0m ";
                 } else {
                     std::cout << it->second->getSymbol() << " ";
                 }
             } else if (cell == '#') {
-                if (owner > 0 && owner <= static_cast<int>(players.size())) {
-                    std::string ansi = game.getAnsiColor(players[owner - 1].getColor());
+                if (owner > 0) {
+                    const Player& p = game.getPlayerById(owner);
+                    std::string ansi = game.getAnsiColor(p.getColor());
                     std::cout << ansi << "#" << "\033[0m ";
                 } else {
                     std::cout << "# ";

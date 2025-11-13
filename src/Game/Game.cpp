@@ -200,6 +200,14 @@ Player& Game::getPlayerById(int id) {
     throw std::runtime_error("Player ID not found");
 }
 
+const Player& Game::getPlayerById(int id) const {
+    for (const auto& player : players) {
+        if (player.getID() == id)
+            return player;
+    }
+    throw std::runtime_error("Player ID not found");
+}
+
 /* ---------------------- BOUCLE DE JEU ---------------------- */
 
 void Game::runRounds(int maxRounds) {
@@ -215,8 +223,29 @@ void Game::runRounds(int maxRounds) {
 }
 
 void Game::playTurn(Player& player) {
-    std::cout << "\n=== Turn of " << player.getName() << " ===\n";
-    std::cout << "Tickets d'échange disponibles : " << player.getExchangeCoupons() << "\n";
+    std::cout << "\n Turn of " << player.getName() << "\n";
+    std::cout << "Exchange-ticket available : " << player.getExchangeCoupons() << "\n";
+    std::cout << "Rock bonus : "
+              << (player.hasRockBonus() ? "available" : "none") << "\n";
+    std::cout << "Stealth bonus : "
+              << (player.hasStealthBonus() ? "available" : "none") << "\n";
+
+    if (player.hasRockBonus()) {
+        std::cout << "\n*** ROCK BONUS ***\n";
+        std::cout << player.getName()
+                  << ", you MUST place a 1x1 stone on an empty cell.\n";
+
+        bool placed = useRockBonus(player);
+
+        if (placed) {
+            std::cout << "Rock bonus used successfully.\n";
+            displayBoard();
+        } else {
+            std::cout << "Rock bonus could not be used. Bonus lost.\n";
+        }
+
+        player.setRockBonusAvailable(false);  // ★ toujours consommé
+    }
 
     Tile current = queue.draw();
     showQueueWithCurrent(current);
@@ -303,6 +332,33 @@ bool Game::promptPlace(Tile& current, int playerId) {
     }
     placeFootprint(pts, playerId);
     return true;
+}
+
+bool Game::useRockBonus(Player& player) {
+    std::cout << player.getName()
+              << " can place a 1x1 stone 'X' on any empty cell.\n";
+
+    while (true) {
+        int x, y;
+        if (!readColRow("Stone position (e.g. A0, C12, AA7): ",
+                        board.getCols(), board.getRows(), x, y)) {
+            continue;
+                        }
+
+        const auto& grid = board.getGrid();
+        if (grid[y][x] != '.') {
+            std::cout << "Cell is not empty. Try again.\n";
+            continue;
+        }
+
+        if (!board.placeStone(x, y)) {
+            std::cout << "Cannot place stone here. Try again.\n";
+            continue;
+        }
+
+        std::cout << "Stone placed at " << colToLetters(x) << y << ".\n";
+        return true;
+    }
 }
 
 /* ---------------------- I/O ROBUSTES ---------------------- */
@@ -491,6 +547,7 @@ void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int player
     for (auto [x,y] : pts) {
         board.placeTile(x, y, playerId);
     }
+    board.checkBonusCapture(playerId, *this);
 }
 
 /* ---------------------- FIN DE PARTIE ---------------------- */
@@ -595,13 +652,13 @@ void Game::printScores(const std::vector<FinalScore>& scores) const {
               });
 
     for (const auto& s : sorted) {
-        const auto& player = players[s.playerId - 1];
+        const auto& player = getPlayerById(s.playerId);
         std::cout << player.getName() << " (" << player.getColor() << ")"
                   << " Biggest square : " << s.maxSquare
                   << ", Total cells : " << s.cellCount << "\n";
     }
 
-    const auto& winner = players[sorted.front().playerId - 1];
+    const auto& winner = getPlayerById(sorted.front().playerId);
     std::cout << "\n The Winner is : " << winner.getName()
               << " (" << winner.getColor() << ")!\n";
 }
