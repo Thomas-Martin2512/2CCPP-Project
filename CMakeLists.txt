@@ -27,14 +27,14 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_library(project_lib
-        src/Tile/InitTiles.cpp
-        src/Tile/Tile.cpp
-        src/Render/Renderer.cpp
-        src/Player/Player.cpp
         src/Board/Board.cpp
         src/Display_Board/Display_Board.cpp
-        src/Tile/TileQueue.cpp
         src/Game/Game.cpp
+        src/Player/Player.cpp
+        src/Render/Renderer.cpp
+        src/Tile/InitTiles.cpp
+        src/Tile/Tile.cpp
+        src/Tile/TileQueue.cpp
 )
 
 target_include_directories(project_lib PUBLIC

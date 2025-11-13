@@ -9,6 +9,8 @@ class Player {
         std::string name;
         std::string color;
         int exchangeCoupons = 1;
+        bool rockBonusAvailable = false;
+        bool stealthBonusAvailable = false;
 
     public:
         Player();
@@ -20,8 +22,12 @@ class Player {
         int getID() const;
         std::string getName() const;
         std::string getColor() const;
+        bool hasRockBonus() const { return rockBonusAvailable; }
+        bool hasStealthBonus() const { return stealthBonusAvailable; }
         void setName(const std::string& newName);
         void setColor(const std::string& newColor);
+        void setRockBonusAvailable(bool v) { rockBonusAvailable = v; }
+        void setStealthBonusAvailable(bool v) { stealthBonusAvailable = v; }
 
         int getExchangeCoupons() const { return exchangeCoupons; }
         void addExchangeCoupon() { exchangeCoupons++; }

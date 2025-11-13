@@ -15,7 +15,6 @@ class Board {
         std::vector<std::vector<char>> grid;
         std::map<std::pair<int,int>, std::shared_ptr<Bonus>> bonuses;
         std::vector<std::vector<int>> ownerGrid;
-        Game* gameRef = nullptr;
 
     public:
         Board();
@@ -25,8 +24,7 @@ class Board {
         void placeBonus(int numberOfPlayers);
         void displayGrid() const;
         void placeTile(int x, int y, int playerId);
-        void checkBonusCapture(int x, int y, int playerId);
-
+        void checkBonusCapture(int playerId, Game& game);
 
         int getRows() const;
         int getCols() const;
@@ -36,7 +34,6 @@ class Board {
         const std::map<std::pair<int,int>, std::shared_ptr<Bonus>>& getBonus() const;
         bool canPlaceFootprint(const std::vector<std::pair<int,int>>& pts, int playerId) const;
         bool placeFootprint(const std::vector<std::pair<int,int>>& pts, int playerId);
-        void setGame(Game* g) { gameRef = g; }
 };
 
 

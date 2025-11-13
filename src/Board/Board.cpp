@@ -77,6 +77,7 @@ void Board::placeTile(int x, int y, int playerId) {
         ownerGrid[y][x] = playerId;
     }
 }
+
 int Board::letterToCol(const std::string& letter) {
     if (letter.empty()) return -1;
     char c = toupper(letter[0]);
@@ -84,7 +85,7 @@ int Board::letterToCol(const std::string& letter) {
     return c - 'A';
 }
 
-void Board::checkBonusCapture(int x, int y, int playerId) {
+void Board::checkBonusCapture(int playerId, Game& game) {
     static const std::vector<std::pair<int,int>> directions = {
         {1,0}, {-1,0}, {0,1}, {0,-1}
     };
@@ -111,15 +112,18 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
             std::cout << "Bonus captured by player " << playerId
                       << " : " << bonusPtr->getName() << std::endl;
 
-            if (bonusPtr->getSymbol() == "E" && gameRef) {
-                Player& player = gameRef->getPlayerById(playerId);
+            Player& player = game.getPlayerById(playerId);
+
+            if (bonusPtr->getSymbol() == "E") {
                 player.addExchangeCoupon();
-                std::cout << "Player " << player.getName()
-                          << " receives an additional exchange voucher! ("
-                          << player.getExchangeCoupons() << " in total)\n";
+                std::cout << "Ticket d'échange +1. Total : "
+                          << player.getExchangeCoupons() << "\n";
             }
 
             if (bonusPtr->getSymbol() == "R") {
+                player.setRockBonusAvailable(true);
+                std::cout << "Rock bonus : available\n";
+
                 std::cout << "Player " << playerId
                           << " can now place a stone (1x1 'X') on an empty cell.\n";
 
@@ -141,6 +145,13 @@ void Board::checkBonusCapture(int x, int y, int playerId) {
                         std::cout << "Invalid or occupied cell, try again.\n";
                     }
                 }
+
+                player.setRockBonusAvailable(false);
+            }
+
+            if (bonusPtr->getSymbol() == "S") {
+                player.setStealthBonusAvailable(true);
+                std::cout << "Stealth bonus : available.\n";
             }
 
             capturedKeys.push_back(pos);

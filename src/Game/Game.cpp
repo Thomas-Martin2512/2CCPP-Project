@@ -215,8 +215,12 @@ void Game::runRounds(int maxRounds) {
 }
 
 void Game::playTurn(Player& player) {
-    std::cout << "\n=== Turn of " << player.getName() << " ===\n";
-    std::cout << "Tickets d'échange disponibles : " << player.getExchangeCoupons() << "\n";
+    std::cout << "\n Turn of " << player.getName() << " ===\n";
+    std::cout << "Exchange-ticket available : " << player.getExchangeCoupons() << "\n";
+    std::cout << "Rock bonus : "
+              << (player.hasRockBonus() ? "available" : "none") << "\n";
+    std::cout << "Stealth bonus : "
+              << (player.hasStealthBonus() ? "available" : "none") << "\n";
 
     Tile current = queue.draw();
     showQueueWithCurrent(current);
@@ -491,6 +495,7 @@ void Game::placeFootprint(const std::vector<std::pair<int,int>>& pts, int player
     for (auto [x,y] : pts) {
         board.placeTile(x, y, playerId);
     }
+    board.checkBonusCapture(playerId, *this);
 }
 
 /* ---------------------- FIN DE PARTIE ---------------------- */
